@@ -1979,6 +1979,13 @@ a:hover { color: var(--primary-hover); }
   margin-top: 12px;
 }
 
+/* Receives CSS 3D camera transform — overflow visible so the tilted scene isn't clipped */
+.rm-canvas {
+  width: 100%;
+  transform-origin: center center;
+  will-change: transform;
+}
+
 .rm-svg {
   display: block;
   width: 100%;
