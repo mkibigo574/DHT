@@ -1,215 +1,256 @@
 'use client'
-import { useRef, useEffect, useState } from 'react'
-import { useScroll, useTransform, motion } from 'framer-motion'
+import { useEffect } from 'react'
+
+const PATH =
+  'M 40,170 C 160,118 240,224 380,166 C 492,118 572,212 720,158 C 842,116 932,202 1062,156 C 1122,138 1158,148 1192,145'
+
+const DURATION = 13 // seconds per loop
+const VIEWBOX_W = 1240
+const VIEWBOX_H = 320
 
 const stops = [
-  { num: '04', region: 'Red Centre', city: 'Alice Springs', desc: 'Where the journey begins. The ancient heart of Australia holds stories and sounds that the world hasn\'t heard yet.', tag: 'Opening Heat', isFinal: false },
-  { num: '03', region: 'Barkly Region', city: 'Tennant Creek', desc: 'The crossroads of the Territory. Where the highway meets heritage, we\'ll find voices that deserve to be heard.', tag: 'Regional Heat', isFinal: false },
-  { num: '02', region: 'Big Rivers Region', city: 'Katherine', desc: 'The gorge country backdrop sets the scene for raw, unfiltered Territory talent.', tag: 'Regional Heat', isFinal: false },
-  { num: '01', region: 'Top End', city: 'Darwin', desc: 'The journey ends where the Territory\'s heart beats strongest. Our Grand Finale brings 3,000 kilometres of music to one electrifying night.', tag: 'Grand Finale', isFinal: true },
+  {
+    region: 'Red Centre',
+    city: 'Alice Springs',
+    desc: 'Where the journey begins. The ancient heart of Australia holds stories and sounds the world hasn\'t heard yet.',
+    tag: 'Opening Heat',
+    isFinal: false,
+    cx: 40,
+    cy: 170,
+    above: false,
+  },
+  {
+    region: 'Barkly Region',
+    city: 'Tennant Creek',
+    desc: 'The crossroads of the Territory. Where the highway meets heritage, voices that deserve to be heard.',
+    tag: 'Regional Heat',
+    isFinal: false,
+    cx: 380,
+    cy: 166,
+    above: true,
+  },
+  {
+    region: 'Big Rivers Region',
+    city: 'Katherine',
+    desc: 'Gorge country sets the scene for raw, unfiltered Territory talent. Known for resilience — and now, music.',
+    tag: 'Regional Heat',
+    isFinal: false,
+    cx: 720,
+    cy: 158,
+    above: false,
+  },
+  {
+    region: 'Top End',
+    city: 'Darwin',
+    desc: 'The journey ends where the Territory\'s heart beats strongest. 3,000 km of music. One electrifying night.',
+    tag: 'Grand Finale',
+    isFinal: true,
+    cx: 1192,
+    cy: 145,
+    above: true,
+  },
 ]
 
-function BusSVG() {
-  return (
-    <svg viewBox="0 0 80 40" width="80" height="40">
-      <rect x="2" y="8" width="76" height="24" rx="6" fill="#FF6B6B" />
-      <rect x="8" y="12" width="10" height="8" rx="2" fill="rgba(255,255,255,0.7)" />
-      <rect x="22" y="12" width="10" height="8" rx="2" fill="rgba(255,255,255,0.7)" />
-      <rect x="36" y="12" width="10" height="8" rx="2" fill="rgba(255,255,255,0.7)" />
-      <rect x="50" y="12" width="10" height="8" rx="2" fill="rgba(255,255,255,0.7)" />
-      <circle cx="18" cy="34" r="6" fill="#1F2A44" />
-      <circle cx="18" cy="34" r="3" fill="#9CA3AF" />
-      <circle cx="60" cy="34" r="6" fill="#1F2A44" />
-      <circle cx="60" cy="34" r="3" fill="#9CA3AF" />
-      <text x="40" y="26" textAnchor="middle" fill="white" fontSize="5" fontWeight="bold">DHT TOUR</text>
-    </svg>
-  )
-}
-
 export default function Roadmap() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const [confettiFired, setConfettiFired] = useState(false)
-  const [activeStop, setActiveStop] = useState(0)
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  })
-
-  // Map scroll progress to x position (as percentage, 0–100%)
-  const vehicleX = useTransform(scrollYProgress, [0.1, 0.9], ['2%', '96%'])
-  // Map scroll progress to y position for vertical layout
-  const vehicleY = useTransform(scrollYProgress, [0.1, 0.9], ['2%', '96%'])
-
-  // Subtle bounce
-  const vehicleBounce = useTransform(
-    scrollYProgress,
-    [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-    [0, -3, 0, -3, 0, -3, 0, -3, 0, -3, 0]
-  )
-
+  // Fire confetti once when the bus first reaches Darwin (~88% through)
   useEffect(() => {
-    const unsubscribe = scrollYProgress.on('change', (v) => {
-      // Update active stop based on progress
-      if (v < 0.3) setActiveStop(0)
-      else if (v < 0.5) setActiveStop(1)
-      else if (v < 0.7) setActiveStop(2)
-      else setActiveStop(3)
-
-      // Fire confetti when reaching Darwin
-      if (v > 0.82 && !confettiFired) {
-        setConfettiFired(true)
-        import('canvas-confetti').then((m) => m.default({
-          particleCount: 150,
-          spread: 100,
-          origin: { y: 0.5 },
-          colors: ['#FF6B6B', '#FF9A8B', '#FFD700', '#ffffff'],
-        }))
-      }
-    })
-    return unsubscribe
-  }, [scrollYProgress, confettiFired])
-
-  // Stop positions as percentages across the road (0=Alice Springs, 100=Darwin)
-  const stopPositions = [3, 34, 66, 97]
+    const t = setTimeout(() => {
+      import('canvas-confetti').then((m) =>
+        m.default({
+          particleCount: 160,
+          spread: 110,
+          origin: { y: 0.45 },
+          colors: ['#FF6B6B', '#FF9A8B', '#FFD700', '#ffffff', '#FF6B6B'],
+        })
+      )
+    }, DURATION * 0.88 * 1000)
+    return () => clearTimeout(t)
+  }, [])
 
   return (
-    <section className="section roadmap section--dark" id="roadmap" ref={sectionRef}>
+    <section className="section roadmap section--dark" id="roadmap">
       <div className="roadmap-bg-glow" />
       <div className="container">
         <div className="section-header on-dark">
           <p className="section-tag">The Journey</p>
           <h2 className="section-title" style={{ color: '#fff' }}>
-            4 Regions. 3,000 Kilometres.<br />
+            4 Regions. 3,000 Kilometres.
+            <br />
             <span className="gradient-text">One Grand Finale.</span>
           </h2>
           <p className="section-subtitle" style={{ color: 'var(--text-muted-dark)' }}>
-            From the Top End to the Red Centre — we&apos;re bringing the stage to every corner of the Territory.
+            From the Red Centre to the Top End — we&apos;re bringing the stage to every corner of the Territory.
           </p>
         </div>
 
-        {/* ===== DESKTOP HORIZONTAL ROAD ===== */}
-        <div className="road-container">
-          {/* Labels above (stops 1 & 3: Alice Springs, Katherine) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 0 }}>
-            {stops.map((stop, i) => (
-              <div key={stop.city} style={{ flex: 1, textAlign: 'center' }}>
-                {i % 2 === 0 ? (
-                  <div className="road-stop-label-above">
-                    <div className={`road-stop-region`}>{stop.region}</div>
-                    <div className={`road-stop-city${activeStop === i ? ' active-city' : ''}`}>{stop.city}</div>
-                    <div className="road-stop-desc">{stop.desc}</div>
-                    <span className={`road-stop-tag${stop.isFinal ? ' final' : ''}`}>{stop.tag}</span>
-                  </div>
-                ) : (
-                  <div style={{ minHeight: 100 }} />
-                )}
-              </div>
-            ))}
-          </div>
+        {/* ===== DESKTOP: animated winding road ===== */}
+        <div className="rm-scene">
+          <svg
+            viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+            width="100%"
+            className="rm-svg"
+            aria-hidden="true"
+            style={{ overflow: 'visible' }}
+          >
+            <defs>
+              <filter id="rm-glow">
+                <feGaussianBlur stdDeviation="5" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="rm-dot-glow">
+                <feGaussianBlur stdDeviation="4" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <linearGradient id="rm-road-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#1a2540" />
+                <stop offset="100%" stopColor="#1e2e50" />
+              </linearGradient>
+            </defs>
 
-          {/* Road with markers */}
-          <div className="road-track-wrap" style={{ position: 'relative' }}>
-            {/* Stop markers positioned on track */}
-            {stops.map((stop, i) => (
-              <div
-                key={stop.city}
-                className="road-marker-wrap"
-                style={{
-                  position: 'absolute',
-                  left: `${stopPositions[i]}%`,
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 3,
-                }}
-              >
-                <div className={`road-stop-marker${activeStop === i ? ' active' : ''}`}>
-                  <div className="road-stop-pulse" />
-                </div>
-              </div>
-            ))}
+            {/* ——— Road layers ——— */}
+            {/* Drop shadow */}
+            <path d={PATH} stroke="rgba(0,0,0,0.45)" strokeWidth="36" fill="none" strokeLinecap="round" />
+            {/* Road base (dark asphalt) */}
+            <path d={PATH} stroke="url(#rm-road-grad)" strokeWidth="28" fill="none" strokeLinecap="round" />
+            {/* Road surface highlight */}
+            <path d={PATH} stroke="#2d3f66" strokeWidth="22" fill="none" strokeLinecap="round" />
+            {/* Edge markings */}
+            <path d={PATH} stroke="rgba(255,220,80,0.18)" strokeWidth="22" fill="none" strokeLinecap="round" strokeDasharray="40 20" />
+            {/* White centre dashes */}
+            <path d={PATH} stroke="rgba(255,255,255,0.16)" strokeWidth="2.5" fill="none" strokeDasharray="22 16" strokeLinecap="round" />
 
-            <div className="road-track">
-              <div className="road-dashes" />
-            </div>
+            {/* ——— Stop markers ——— */}
+            {stops.map((s) => {
+              const R = s.isFinal ? 10 : 7
+              const connY1 = s.above ? s.cy - R : s.cy + R
+              const connY2 = s.above ? s.cy - 32 : s.cy + 32
+              const labelY = s.above
+                ? [s.cy - 88, s.cy - 68, s.cy - 50]   // region, city, tag
+                : [s.cy + 48, s.cy + 66, s.cy + 82]
 
-            {/* Animated vehicle */}
-            <motion.div
-              className="road-vehicle"
-              style={{ left: vehicleX, top: vehicleBounce }}
-            >
-              <BusSVG />
-            </motion.div>
-          </div>
+              return (
+                <g key={s.city}>
+                  {/* Outer pulse ring */}
+                  <circle cx={s.cx} cy={s.cy} r={R + 10} fill="rgba(255,107,107,0.08)" filter="url(#rm-glow)" />
+                  <circle cx={s.cx} cy={s.cy} r={R + 5} fill="none" stroke="rgba(255,107,107,0.22)" strokeWidth="1.5" />
+                  {/* Dot */}
+                  <circle cx={s.cx} cy={s.cy} r={R} fill="#FF6B6B" filter="url(#rm-dot-glow)" />
+                  <circle cx={s.cx} cy={s.cy} r={R * 0.38} fill="#fff" />
 
-          {/* Labels below (stops 2 & 4: Tennant Creek, Darwin) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 0 }}>
-            {stops.map((stop, i) => (
-              <div key={stop.city} style={{ flex: 1, textAlign: 'center' }}>
-                {i % 2 === 1 ? (
-                  <div className="road-stop-label-below">
-                    <div className="road-stop-region">{stop.region}</div>
-                    <div className={`road-stop-city${activeStop === i ? ' active-city' : ''}`}>{stop.city}</div>
-                    <div className="road-stop-desc">{stop.desc}</div>
-                    <span className={`road-stop-tag${stop.isFinal ? ' final' : ''}`}>{stop.tag}</span>
-                  </div>
-                ) : (
-                  <div style={{ minHeight: 100 }} />
-                )}
+                  {/* Connector line */}
+                  <line
+                    x1={s.cx} y1={connY1}
+                    x2={s.cx} y2={connY2}
+                    stroke="rgba(255,107,107,0.28)" strokeWidth="1.5" strokeDasharray="4 3"
+                  />
+
+                  {/* Labels */}
+                  <text x={s.cx} y={labelY[0]} textAnchor="middle" fill="rgba(255,107,107,0.75)"
+                    fontSize="9" fontWeight="700" fontFamily="Poppins,sans-serif" letterSpacing="2.5">
+                    {s.region.toUpperCase()}
+                  </text>
+                  <text x={s.cx} y={labelY[1]} textAnchor="middle" fill="#fff"
+                    fontSize={s.isFinal ? 18 : 14} fontWeight="900" fontFamily="Poppins,sans-serif" letterSpacing="-0.3">
+                    {s.city}
+                  </text>
+                  <text x={s.cx} y={labelY[2]} textAnchor="middle"
+                    fill={s.isFinal ? '#FF6B6B' : 'rgba(234,234,234,0.4)'}
+                    fontSize="8" fontWeight="600" fontFamily="Poppins,sans-serif" letterSpacing="2">
+                    {s.tag.toUpperCase()}
+                  </text>
+
+                  {/* Star badge for Darwin */}
+                  {s.isFinal && (
+                    <text x={s.cx + 18} y={labelY[1] + 2} fill="#FFD700" fontSize="13">★</text>
+                  )}
+                </g>
+              )
+            })}
+
+            {/* ——— Hidden reference path for animateMotion ——— */}
+            <path id="rm-route" d={PATH} fill="none" stroke="none" />
+
+            {/* ——— Animated Bus ——— */}
+            <g>
+              {/* Offset so bus body centre rides on the path */}
+              <g transform="translate(-46, -24)">
+                {/* Wheel shadow */}
+                <ellipse cx="46" cy="52" rx="40" ry="5" fill="rgba(0,0,0,0.28)" />
+
+                {/* Roof cap */}
+                <rect x="6" y="1" width="78" height="12" rx="5" fill="#cc4444" />
+
+                {/* Bus body */}
+                <rect x="2" y="6" width="86" height="32" rx="7" fill="#FF6B6B" />
+
+                {/* Body bottom stripe */}
+                <rect x="2" y="30" width="86" height="8" rx="3" fill="#e55555" />
+
+                {/* Windows */}
+                <rect x="9"  y="12" width="14" height="13" rx="2.5" fill="rgba(180,225,255,0.85)" />
+                <rect x="27" y="12" width="14" height="13" rx="2.5" fill="rgba(180,225,255,0.85)" />
+                <rect x="45" y="12" width="14" height="13" rx="2.5" fill="rgba(180,225,255,0.85)" />
+                <rect x="63" y="12" width="13" height="13" rx="2.5" fill="rgba(180,225,255,0.85)" />
+
+                {/* Windscreen */}
+                <rect x="78" y="10" width="9" height="18" rx="3" fill="rgba(160,215,255,0.9)" />
+
+                {/* Front bumper */}
+                <rect x="76" y="30" width="12" height="5" rx="2" fill="#aa3333" />
+
+                {/* Text on bus */}
+                <text x="41" y="23" textAnchor="middle" fill="rgba(255,255,255,0.95)"
+                  fontSize="6.5" fontWeight="800" fontFamily="Poppins,sans-serif">DHT TOUR</text>
+                <text x="41" y="32" textAnchor="middle" fill="rgba(255,220,90,0.65)"
+                  fontSize="5" fontFamily="sans-serif">★  ★  ★</text>
+
+                {/* Wheels */}
+                <circle cx="21" cy="42" r="9" fill="#141e30" />
+                <circle cx="21" cy="42" r="6" fill="#2a3a55" />
+                <circle cx="21" cy="42" r="2.5" fill="#5a6a8a" />
+                <circle cx="65" cy="42" r="9" fill="#141e30" />
+                <circle cx="65" cy="42" r="6" fill="#2a3a55" />
+                <circle cx="65" cy="42" r="2.5" fill="#5a6a8a" />
+              </g>
+
+              <animateMotion dur={`${DURATION}s`} repeatCount="indefinite" rotate="auto">
+                <mpath href="#rm-route" />
+              </animateMotion>
+            </g>
+          </svg>
+
+          {/* Description cards beneath the road */}
+          <div className="rm-cards">
+            {stops.map((s) => (
+              <div key={s.city} className={`rm-card${s.isFinal ? ' rm-card--final' : ''}`}>
+                <p>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* ===== MOBILE VERTICAL ROAD ===== */}
-        <div className="road-vertical-container">
-          <div className="road-vertical-line" />
-          <div className="road-vertical-dashes" />
-
-          {/* Animated vehicle (vertical) */}
-          <motion.div
-            className="road-vertical-vehicle"
-            style={{ top: vehicleY }}
-          >
-            <BusSVG />
-          </motion.div>
-
-          <div className="road-vertical-stops">
-            {stops.map((stop, i) => {
-              const isLeft = i % 2 === 0
-              return (
-                <div key={stop.city} className="road-vertical-stop" style={{ position: 'relative', minHeight: 100, display: 'flex', alignItems: 'center' }}>
-                  {isLeft ? (
-                    <>
-                      <div className="road-vertical-stop-content road-vertical-stop-left" style={{ width: 'calc(50% - 30px)', textAlign: 'right', paddingRight: 20 }}>
-                        <div className="road-stop-region">{stop.region}</div>
-                        <div className={`road-stop-city${activeStop === i ? ' active-city' : ''}`}>{stop.city}</div>
-                        <div className="road-stop-desc" style={{ marginLeft: 'auto' }}>{stop.desc}</div>
-                        <span className={`road-stop-tag${stop.isFinal ? ' final' : ''}`}>{stop.tag}</span>
-                      </div>
-                      <div style={{ width: 60, display: 'flex', justifyContent: 'center', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-                        <div className={`road-vertical-marker${activeStop === i ? ' active' : ''}`} />
-                      </div>
-                      <div style={{ width: 'calc(50% - 30px)', marginLeft: 'auto' }} />
-                    </>
-                  ) : (
-                    <>
-                      <div style={{ width: 'calc(50% - 30px)' }} />
-                      <div style={{ width: 60, display: 'flex', justifyContent: 'center', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-                        <div className={`road-vertical-marker${activeStop === i ? ' active' : ''}`} />
-                      </div>
-                      <div className="road-vertical-stop-content road-vertical-stop-right" style={{ width: 'calc(50% - 30px)', textAlign: 'left', paddingLeft: 20, marginLeft: 'auto' }}>
-                        <div className="road-stop-region">{stop.region}</div>
-                        <div className={`road-stop-city${activeStop === i ? ' active-city' : ''}`}>{stop.city}</div>
-                        <div className="road-stop-desc">{stop.desc}</div>
-                        <span className={`road-stop-tag${stop.isFinal ? ' final' : ''}`}>{stop.tag}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+        {/* ===== MOBILE: vertical timeline ===== */}
+        <div className="rm-mobile">
+          {stops.map((s, i) => (
+            <div key={s.city} className="rm-mobile-stop">
+              <div className="rm-mobile-spine">
+                <div className={`rm-mobile-dot${s.isFinal ? ' final' : ''}`} />
+                {i < stops.length - 1 && <div className="rm-mobile-line" />}
+              </div>
+              <div className="rm-mobile-card glass-card">
+                <div className="tc-region">{s.region}</div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.45rem', fontWeight: 900, color: '#fff', margin: '4px 0 8px', letterSpacing: '-0.02em' }}>{s.city}</h3>
+                <p style={{ fontSize: '0.87rem', color: 'var(--text-muted-dark)', lineHeight: 1.72, marginBottom: 12 }}>{s.desc}</p>
+                <span className={`tc-tag${s.isFinal ? ' final-tag' : ''}`}>{s.tag}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

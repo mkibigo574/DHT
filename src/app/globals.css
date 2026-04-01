@@ -1969,3 +1969,91 @@ a:hover { color: var(--primary-hover); }
   .hero-prizes { gap: 4px; }
   .hero-prize-item { font-size: 0.78rem; }
 }
+
+/* ================================================
+   ANIMATED ROADMAP — winding road scene
+   ================================================ */
+
+/* Desktop: full winding SVG road */
+.rm-scene {
+  margin-top: 12px;
+}
+
+.rm-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Description cards below the road */
+.rm-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.rm-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px 14px;
+  font-size: 0.8rem;
+  color: var(--text-muted-dark);
+  line-height: 1.7;
+}
+
+.rm-card--final {
+  border-color: rgba(255,107,107,0.28);
+  background: rgba(255,107,107,0.06);
+  color: rgba(234,234,234,0.8);
+}
+
+/* Mobile: hide SVG road, show vertical timeline */
+.rm-mobile { display: none; }
+
+.rm-mobile-stop {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.rm-mobile-spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.rm-mobile-dot {
+  width: 16px; height: 16px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(255,107,107,0.5);
+  flex-shrink: 0;
+}
+.rm-mobile-dot.final {
+  width: 20px; height: 20px;
+  box-shadow: 0 0 22px rgba(255,107,107,0.75);
+}
+
+.rm-mobile-line {
+  width: 2px;
+  flex: 1;
+  min-height: 36px;
+  background: linear-gradient(to bottom, rgba(255,107,107,0.4), rgba(255,107,107,0.08));
+  margin: 6px 0;
+}
+
+.rm-mobile-card {
+  flex: 1;
+  padding: 20px 22px;
+}
+
+@media (max-width: 860px) {
+  .rm-scene   { display: none; }
+  .rm-mobile  { display: flex; flex-direction: column; }
+}
