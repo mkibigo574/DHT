@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#0B0F1A;font-family:'Inter',sans-serif}
+    #c{position:fixed;inset:0;display:block;width:100%;height:100%}
+
+    #loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0B0F1A;z-index:100}
+    .dots{display:flex;gap:8px}
+    .dot{width:10px;height:10px;border-radius:50%;background:#FF6B6B;animation:bop .9s infinite ease-in-out}
+    .dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+    @keyframes bop{0%,80%,100%{transform:scale(.55);opacity:.35}40%{transform:scale(1);opacity:1}}
+    #loader p{font-size:.72rem;color:rgba(255,255,255,.28);letter-spacing:.12em;text-transform:uppercase}
+
+    #title{position:fixed;top:20px;left:50%;transform:translateX(-50%);text-align:center;z-index:10;pointer-events:none;display:none}
+    #title h1{font-family:'Poppins',sans-serif;font-size:clamp(.8rem,2vw,1.3rem);font-weight:900;color:#fff;letter-spacing:.05em;line-height:1}
+    #title h1 span{color:#FF6B6B}
+    #title p{margin-top:4px;font-size:clamp(.48rem,.85vw,.62rem);color:rgba(255,255,255,.28);letter-spacing:.18em;text-transform:uppercase}
+
+    .lbl{
+      position:fixed;pointer-events:none;z-index:12;
+      transform:translate(-50%,-100%);
+      padding:10px 18px 14px;
+      text-align:center;display:none;
+      background:rgba(11,15,26,.55);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      border:1px solid rgba(255,107,107,.18);
+      border-radius:12px;
+    }
+    .lbl-region{
+      font-size:.72rem;font-weight:800;letter-spacing:.18em;
+      text-transform:uppercase;color:#ff4d94;
+      text-shadow:0 0 12px rgba(255,77,148,.9),0 0 24px rgba(255,77,148,.5);
+      margin-bottom:3px;
+    }
+    .lbl-city{
+      font-family:'Poppins',sans-serif;font-size:1.45rem;
+      font-weight:900;color:#fff;white-space:nowrap;line-height:1.15;
+      text-shadow:0 0 18px rgba(255,255,255,.6),0 2px 20px #000;
+      letter-spacing:-.02em;
+    }
+    .lbl-tag{
+      font-size:.65rem;font-weight:700;letter-spacing:.14em;
+      text-transform:uppercase;color:rgba(255,77,148,.85);
+      margin-top:4px;display:block;
+      text-shadow:0 0 8px rgba(255,77,148,.6);
+    }
+    /* Darwin — Grand Finale styling */
+    .lbl.darwin{border-color:rgba(255,215,0,.35);background:rgba(11,15,26,.65);}
+    .lbl.darwin .lbl-region{color:rgba(255,255,255,.6);text-shadow:none;}
+    .lbl.darwin .lbl-city{color:#ffd700;font-size:1.7rem;text-shadow:0 0 22px rgba(255,215,0,.8),0 0 44px rgba(255,215,0,.35),0 2px 20px #000;}
+    .lbl.darwin .lbl-tag{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8);}
+
+    #badge{position:fixed;top:16px;right:16px;z-index:10;pointer-events:none;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.25);border-radius:20px;padding:4px 12px;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#FF6B6B}
+    #hint{position:fixed;bottom:72px;right:16px;z-index:10;pointer-events:none;font-size:.58rem;color:rgba(255,255,255,.18);letter-spacing:.06em;text-transform:uppercase;line-height:1.9;text-align:right}
+
+    #bar{position:fixed;bottom:0;left:0;right:0;z-index:20;display:none;background:linear-gradient(to top,rgba(11,15,26,.96),transparent);padding:16px 20px 12px}
+    #track{height:3px;background:rgba(255,255,255,.1);border-radius:3px;margin-bottom:11px;cursor:pointer;position:relative}
+    #fill{position:absolute;left:0;top:0;height:100%;width:0%;border-radius:3px;background:linear-gradient(90deg,#FF6B6B,#FFD700);pointer-events:none}
+    #thumb{position:absolute;top:50%;transform:translate(-50%,-50%);left:0%;width:11px;height:11px;border-radius:50%;background:#FF6B6B;box-shadow:0 0 8px rgba(255,107,107,.85);pointer-events:none}
+    #btns{display:flex;align-items:center;gap:14px}
+    .ib{background:none;border:none;color:rgba(255,255,255,.52);cursor:pointer;display:flex;align-items:center;gap:5px;font-size:.72rem;font-family:'Inter',sans-serif;padding:3px;transition:color .2s}
+    .ib:hover{color:#fff}.ib svg{width:16px;height:16px;fill:currentColor;flex-shrink:0}
+    #tc{font-size:.7rem;color:rgba(255,255,255,.35);font-variant-numeric:tabular-nums}
+    .sp{flex:1}
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loader"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p>Loading 3D scene…</p></div>
+<!-- <div id="title"><h1>DARWIN<span>HAS</span>TALENT</h1><p>4 Regions · 3,000 Kilometres · One Grand Finale</p></div> -->
+<div id="labels"></div>
+<!-- <div id="badge">Follow Cam</div> -->
+<div id="hint">Double-click — toggle camera<br>Drag — orbit scene</div>
+<div id="bar">
+  <div id="track"><div id="fill"></div><div id="thumb"></div></div>
+  <div id="btns">
+    <!-- <button class="ib" id="playBtn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button> -->
+    <!-- <span id="tc">0:00 / 0:18</span> -->
+    <div class="sp"></div>
+    <button class="ib"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 8.07v7.86c1.48-.64 2.5-2.14 2.5-3.93z"/></svg></button>
+    <button class="ib" style="font-weight:700;font-size:.7rem;letter-spacing:.04em">CC</button>
+    <button class="ib" id="fsBtn"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
+  </div>
+</div>
+
+<script>
+(function init() {
+  if (typeof THREE === 'undefined') { setTimeout(init, 50); return; }
+
+  // ══════════════════════════════════════════
+  //  PALETTE
+  // ══════════════════════════════════════════
+  var P = {
+    bg:0x0B0F1A, tileA:0x131C2E, tileB:0x111827, grid:0x1A2540,
+    road:0x1E2C4A, edge:0x293D6A,
+    coral:0xFF6B6B, gold:0xFFD700, win:0x90CCFF,
+    bld:0x172030, bldTop:0x1E2D44,
+    park:0x152B1D, parkHi:0x1C3A26,
+  };
+
+  // ══════════════════════════════════════════
+  //  RENDERER / SCENE / CAMERA
+  // ══════════════════════════════════════════
+  var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(P.bg);
+  scene.fog = new THREE.FogExp2(P.bg, 0.02);
+
+  var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 300);
+  camera.position.set(4, 16, 20);
+  camera.lookAt(0, 0, -2);
+
+  var orbit = new THREE.OrbitControls(camera, renderer.domElement);
+  orbit.enableDamping = true; orbit.dampingFactor = 0.07;
+  orbit.target.set(0, 0, -2);
+  orbit.minDistance = 5; orbit.maxDistance = 60;
+  orbit.maxPolarAngle = Math.PI / 2.1;
+  orbit.enabled = false;
+
+  // ══════════════════════════════════════════
+  //  LIGHTS
+  // ══════════════════════════════════════════
+  scene.add(new THREE.AmbientLight(0x8090B8, 0.8));
+  scene.add(new THREE.HemisphereLight(0x3060A8, 0x0A1020, 0.5));
+  var sun = new THREE.DirectionalLight(0xFFE0C8, 1.5);
+  sun.position.set(10, 22, 14); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = sun.shadow.camera.bottom = -30;
+  sun.shadow.camera.right = sun.shadow.camera.top = 30;
+  sun.shadow.camera.near = 1; sun.shadow.camera.far = 90;
+  scene.add(sun);
+
+  // ══════════════════════════════════════════
+  //  GROUND TILES + GRID
+  // ══════════════════════════════════════════
+  var tGeo = new THREE.PlaneGeometry(5,5);
+  var tMA  = new THREE.MeshStandardMaterial({color:P.tileA, roughness:.98});
+  var tMB  = new THREE.MeshStandardMaterial({color:P.tileB, roughness:.98});
+  for (var gx=-9; gx<=9; gx++) for (var gz=-9; gz<=9; gz++) {
+    var t = new THREE.Mesh(tGeo, (gx+gz)&1 ? tMB : tMA);
+    t.rotation.x = -Math.PI/2; t.position.set(gx*5+2.5, 0, gz*5+2.5);
+    t.receiveShadow = true; scene.add(t);
+  }
+  var gMat = new THREE.LineBasicMaterial({color:P.grid, transparent:true, opacity:.5});
+  for (var gi=-45; gi<=45; gi+=5) {
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(gi,.015,-45),new THREE.Vector3(gi,.015,45)]),gMat));
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-45,.015,gi),new THREE.Vector3(45,.015,gi)]),gMat));
+  }
+
+  // ══════════════════════════════════════════
+  //  PARKS
+  // ══════════════════════════════════════════
+  [[-16,2,6,5],[14,-4,5,4],[-14,-15,7,5],[16,6,4,6],[-18,-6,5,4],[6,14,5,4],[-6,-17,5,4],[16,-14,5,4]].forEach(function(d,i){
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(d[2],d[3]),
+      new THREE.MeshStandardMaterial({color:i%2?P.parkHi:P.park, roughness:1}));
+    m.rotation.x=-Math.PI/2; m.position.set(d[0],.01,d[1]); scene.add(m);
+  });
+
+  // ══════════════════════════════════════════
+  //  BUILDINGS — two clusters flanking the road
+  // ══════════════════════════════════════════
+  var bS = new THREE.MeshStandardMaterial({color:P.bld,    roughness:.9, metalness:.08});
+  var bT = new THREE.MeshStandardMaterial({color:P.bldTop, roughness:.8, metalness:.12});
+  [
+    // LEFT of road
+    [-14, 1,3,2.5,4.2], [-16,-2,2,2,6.0], [-13,-4,1.5,3,3.5], [-15,-7,4,2,2.8],
+    [-13, 4,2,2,3.0],   [-16, 5,3,2,5.0], [-18, 0,2,3,4.5],   [-17,-10,3,2.5,3],
+    [-14,-12,2,2,5.5],  [-16, 8,2,2,2.5],
+    // RIGHT of road
+    [12, 2,3,3,6.5],  [14,-1,2,1.5,3.5], [13, 4,2,2,2.8],  [15, 1,2,2.5,5.0],
+    [11,-4,2,2,3.2],  [13,-6,3,2,2.0],   [15,-9,2,2,4.0],  [12,-11,2.5,2.5,3.5],
+    [14, 6,2,2,4.0],  [16, 4,1.5,2,2.5],
+    // FAR top / bottom
+    [-4, 16,2.5,2,3],  [2,15,2,2.5,4.5],  [-8,14,3,2,2.5],
+    [-3,-16,2.5,2,3.5],[3,-15,2,2,5],     [8,-15,3,2,2.5],
+  ].forEach(function(d){
+    var mesh = new THREE.Mesh(new THREE.BoxGeometry(d[2],d[4],d[3]),[bS,bS,bT,bS,bS,bS]);
+    mesh.position.set(d[0],d[4]/2,d[1]);
+    mesh.castShadow = mesh.receiveShadow = true;
+    scene.add(mesh);
+  });
+
+  // ══════════════════════════════════════════
+  //  ROAD CURVE
+  // ══════════════════════════════════════════
+  var curve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-10, 0.12,  10),   // Alice Springs
+    new THREE.Vector3( -8, 0.12,   7),
+    new THREE.Vector3( -5, 0.12,   4),
+    new THREE.Vector3( -1, 0.12,   1.5), // Tennant Creek area
+    new THREE.Vector3(  2, 0.12,  -1),
+    new THREE.Vector3(  4, 0.12,  -3.5), // Katherine area
+    new THREE.Vector3(  3.5,0.12, -6),
+    new THREE.Vector3(  2.5,0.12, -8),
+    new THREE.Vector3(  3,  0.12, -10),
+    new THREE.Vector3(  4,  0.12, -12),  // Darwin
+  ], false, 'catmullrom', 0.5);
+
+  // Flat ribbon geometry helper
+  function ribbon(crv, width, segs, dy) {
+    dy = dy || 0;
+    var pos=[], uv=[], idx=[];
+    for (var i=0; i<=segs; i++) {
+      var u=i/segs, p=crv.getPoint(u), tn=crv.getTangent(u);
+      var ln=Math.sqrt(tn.z*tn.z+tn.x*tn.x)||1;
+      var rx=(-tn.z/ln)*(width/2), rz=(tn.x/ln)*(width/2);
+      pos.push(p.x-rx,p.y+dy,p.z-rz, p.x+rx,p.y+dy,p.z+rz);
+      uv.push(0,u,1,u);
+      if (i<segs){var b=i*2; idx.push(b,b+2,b+1, b+1,b+2,b+3);}
+    }
+    var g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    g.setIndex(idx); g.computeVertexNormals(); return g;
+  }
+
+  var edgeMesh=new THREE.Mesh(ribbon(curve,2.7,300,-0.01),new THREE.MeshStandardMaterial({color:P.edge,roughness:.9}));
+  edgeMesh.receiveShadow=true; scene.add(edgeMesh);
+
+  var roadMesh=new THREE.Mesh(ribbon(curve,2.2,300),new THREE.MeshStandardMaterial({color:P.road,roughness:.82,metalness:.04}));
+  roadMesh.receiveShadow=true; scene.add(roadMesh);
+
+  // Centre dashes
+  (function(){
+    var N=600,pts=[];
+    for(var i=0;i<=N;i++){var p=curve.getPoint(i/N);pts.push(new THREE.Vector3(p.x,p.y+.025,p.z));}
+    var ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineDashedMaterial({color:0xFFFFFF,dashSize:.45,gapSize:.35,transparent:true,opacity:.45}));
+    ln.computeLineDistances(); scene.add(ln);
+  })();
+
+  // Yellow edge dashes
+  [-0.88,0.88].forEach(function(side){
+    var N=500,pts=[];
+    for(var i=0;i<=N;i++){
+      var u=i/N, p=curve.getPoint(u), tn=curve.getTangent(u);
+      var ln=Math.sqrt(tn.z*tn.z+tn.x*tn.x)||1;
+      pts.push(new THREE.Vector3(p.x+(-tn.z/ln)*side,p.y+.018,p.z+(tn.x/ln)*side));
+    }
+    var l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineDashedMaterial({color:0xFFCC00,dashSize:.6,gapSize:1,transparent:true,opacity:.2}));
+    l.computeLineDistances(); scene.add(l);
+  });
+
+  // ══════════════════════════════════════════
+  //  STOP PINS
+  // ══════════════════════════════════════════
+  var STOPS = [
+    {t:0.00, city:'Alice Springs', region:'Red Centre',    tag:'Opening Heat',   final:false},
+    {t:0.30, city:'Tennant Creek', region:'Barkly Region', tag:'Regional Heat',  final:false},
+    {t:0.60, city:'Katherine',     region:'Big Rivers',    tag:'Regional Heat',  final:false},
+    {t:1.00, city:'Darwin',        region:'Top End',       tag:'Grand Finale ★', final:true },
+  ];
+
+  function makePin(final) {
+    var col=final?P.gold:P.coral;
+    var mat=new THREE.MeshStandardMaterial({color:col,roughness:.22,metalness:.18,emissive:col,emissiveIntensity:final?.5:.3});
+    var wm =new THREE.MeshStandardMaterial({color:0xffffff,roughness:.4,emissive:0xffffff,emissiveIntensity:.6});
+    var g=new THREE.Group();
+    var head=new THREE.Mesh(new THREE.SphereGeometry(.38,22,22),mat); head.position.y=1.0;
+    var tail=new THREE.Mesh(new THREE.ConeGeometry(.26,.58,18),mat);  tail.rotation.z=Math.PI; tail.position.y=.38;
+    var dot =new THREE.Mesh(new THREE.SphereGeometry(.13,14,14),wm);  dot.position.y=1.0;
+    g.add(head,tail,dot); g.castShadow=true; return g;
+  }
+
+  var pinMeshes=STOPS.map(function(s){
+    var pin=makePin(s.final), p=curve.getPoint(s.t);
+    pin.position.set(p.x,p.y+.55,p.z); scene.add(pin);
+    var pt=new THREE.PointLight(s.final?P.gold:P.coral,1.0,7);
+    pt.position.set(p.x,p.y+2,p.z); scene.add(pt);
+    return pin;
+  });
+
+  // ══════════════════════════════════════════
+  //  VEHICLE REMOVED
+  //  The original detailed tour bus (makeBus) and all
+  //  related geometry, materials, and per-frame movement
+  //  have been removed. The camera now travels the route
+  //  as a free "drone cam" following the same path.
+  // ══════════════════════════════════════════
+
+  // ══════════════════════════════════════════
+  //  HTML LABELS
+  // ══════════════════════════════════════════
+  var wrap=document.getElementById('labels');
+  var lblEls=STOPS.map(function(s){
+    var d=document.createElement('div');
+    d.className='lbl'+(s.final?' darwin':'');
+    d.innerHTML='<div class="lbl-region">'+s.region+'</div><div class="lbl-city">'+s.city+'</div><div class="lbl-tag">'+s.tag+'</div>';
+    wrap.appendChild(d); return d;
+  });
+
+  // ══════════════════════════════════════════
+  //  STATE + UI
+  // ══════════════════════════════════════════
+  var LOOP=18, t=0, playing=true, follow=true;
+  var prev=performance.now()/1000;
+  var camTarget=new THREE.Vector3(0,0,-2);
+  var _v=new THREE.Vector3();
+
+  function w2s(wp){
+    _v.copy(wp).project(camera);
+    return{x:(_v.x*.5+.5)*window.innerWidth, y:(-_v.y*.5+.5)*window.innerHeight, ok:_v.z<1};
+  }
+
+  var fillEl=document.getElementById('fill');
+  var thumbEl=document.getElementById('thumb');
+  var tcEl=document.getElementById('tc');       // null when commented out — guarded below
+  var badgeEl=document.getElementById('badge'); // null when commented out — guarded below
+
+  var playBtnEl=document.getElementById('playBtn');
+  if(playBtnEl) playBtnEl.addEventListener('click',function(){
+    playing=!playing;
+    this.innerHTML=playing
+      ?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+      :'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+  });
+
+  document.getElementById('track').addEventListener('click',function(e){
+    var r=e.currentTarget.getBoundingClientRect();
+    t=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  });
+
+  renderer.domElement.addEventListener('dblclick',function(){
+    follow=!follow; orbit.enabled=!follow;
+    if(badgeEl) badgeEl.textContent=follow?'Follow Cam':'Orbit Mode';
+    if(!follow) orbit.target.copy(camTarget);
+  });
+
+  document.getElementById('fsBtn').addEventListener('click',function(){
+    document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(function(){});
+  });
+
+  // ══════════════════════════════════════════
+  //  RENDER LOOP
+  // ══════════════════════════════════════════
+  function tick(){
+    requestAnimationFrame(tick);
+    var now=performance.now()/1000, dt=Math.min(now-prev,.05); prev=now;
+
+    if(playing) t=(t+dt/LOOP)%1;
+
+    // Path point — used for camera only (bus removed; no vehicle to position)
+    var vp=curve.getPoint(t), vt=curve.getTangent(t);
+    // REMOVED: bus.position.set(vp.x, vp.y, vp.z);
+    // REMOVED: bus.rotation.y = Math.atan2(vt.x, vt.z);
+
+    // Camera follow — drone cam travels the route
+    if(follow){
+      var wp=new THREE.Vector3(vp.x-vt.x*8, vp.y+5.5, vp.z-vt.z*8);
+      camera.position.lerp(wp,.04);
+      camTarget.lerp(curve.getPoint(Math.min(t+.06,1)),.05);
+      camera.lookAt(camTarget);
+    } else { orbit.update(); }
+
+    // Pin pulse
+    pinMeshes.forEach(function(pin,i){
+      var s=1+Math.sin(now*1.8+i*1.2)*.055; pin.scale.set(s,s,s);
+    });
+
+    // Labels — anchor point raised to 3.2 units above pin so the taller card clears it
+    STOPS.forEach(function(s,i){
+      var p3=curve.getPoint(s.t); p3.y+=3.2;
+      var sc=w2s(p3);
+      var ok=sc.ok&&sc.x>10&&sc.x<window.innerWidth-10&&sc.y>30&&sc.y<window.innerHeight-80;
+      lblEls[i].style.display=ok?'block':'none';
+      if(ok){lblEls[i].style.left=sc.x+'px'; lblEls[i].style.top=sc.y+'px';}
+    });
+
+    // Progress bar (fill/thumb always present; tcEl may be null if commented out)
+    var pct=(t*100).toFixed(2);
+    fillEl.style.width=pct+'%'; thumbEl.style.left=pct+'%';
+    if(tcEl){ var sec=Math.floor(t*LOOP); tcEl.textContent='0:'+(sec<10?'0':'')+sec+' / 0:'+LOOP; }
+
+    renderer.render(scene,camera);
+  }
+
+  window.addEventListener('resize',function(){
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+  });
+
+  // Show UI + start (title/badge may be commented out — guard with null check)
+  document.getElementById('loader').style.display='none';
+  var titleEl=document.getElementById('title'); if(titleEl) titleEl.style.display='block';
+  document.getElementById('bar').style.display='block';
+  tick();
+})();
+</script>
+</body>
+</html>

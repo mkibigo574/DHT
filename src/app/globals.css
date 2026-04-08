@@ -786,7 +786,8 @@ a:hover { color: var(--primary-hover); }
 /* ================================================
    ROADMAP — animated vehicle
    ================================================ */
-.roadmap { background: var(--bg-dark); overflow: hidden; }
+/* overflow: visible lets the full-bleed iframe escape the container width */
+.roadmap { background: var(--bg-dark); overflow: visible; }
 
 .roadmap-bg-glow {
   position: absolute;
@@ -1974,9 +1975,51 @@ a:hover { color: var(--primary-hover); }
    ANIMATED ROADMAP — winding road scene
    ================================================ */
 
-/* Desktop: full winding SVG road */
+/* Desktop: scene wrapper base */
 .rm-scene {
   margin-top: 12px;
+}
+
+/*
+  Full-bleed 3D iframe wrapper.
+  Lives outside .container so it stretches edge-to-edge.
+  ::before / ::after create gradient curtains that dissolve the
+  iframe's dark background (#0B0F1A) into the section color (#1F2A44)
+  — no visible box edge, no "embedded video" look.
+*/
+.rm-scene--3d {
+  position: relative;
+  width: 100%;
+  margin: 20px 0 0;
+}
+
+/* Top fade: section bg → transparent, hides the hard top edge */
+.rm-scene--3d::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 130px;
+  background: linear-gradient(to bottom, #1F2A44 0%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Bottom fade: transparent → section bg, hides the progress bar chrome */
+.rm-scene--3d::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 130px;
+  background: linear-gradient(to top, #1F2A44 0%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.rm-iframe {
+  display: block;
+  width: 100%;
+  height: 620px;
+  border: none;
 }
 
 /* Receives CSS 3D camera transform — overflow visible so the tilted scene isn't clipped */
@@ -2017,14 +2060,42 @@ a:hover { color: var(--primary-hover); }
   color: rgba(234,234,234,0.8);
 }
 
-/* Mobile: hide SVG road, show vertical timeline */
+/* ── Region label & tag badge shared styles ───────────────────────────── */
+.tc-region {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ff4d94;
+  margin-bottom: 2px;
+}
+
+.tc-tag {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,77,148,0.85);
+  border: 1px solid rgba(255,77,148,0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.tc-tag.final-tag {
+  color: #ffd700;
+  border-color: rgba(255,215,0,0.45);
+  text-shadow: 0 0 8px rgba(255,215,0,0.5);
+}
+
+/* ── Mobile: hide 3D scene, show vertical timeline ───────────────────── */
 .rm-mobile { display: none; }
 
 .rm-mobile-stop {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   align-items: flex-start;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .rm-mobile-spine {
@@ -2032,35 +2103,72 @@ a:hover { color: var(--primary-hover); }
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  padding-top: 4px;
+  padding-top: 6px;
 }
 
 .rm-mobile-dot {
-  width: 16px; height: 16px;
-  background: var(--primary);
+  width: 14px; height: 14px;
+  background: #ff4d94;
   border-radius: 50%;
-  box-shadow: 0 0 14px rgba(255,107,107,0.5);
+  box-shadow: 0 0 14px rgba(255,77,148,0.6);
   flex-shrink: 0;
 }
 .rm-mobile-dot.final {
-  width: 20px; height: 20px;
-  box-shadow: 0 0 22px rgba(255,107,107,0.75);
+  width: 18px; height: 18px;
+  background: #ffd700;
+  box-shadow: 0 0 20px rgba(255,215,0,0.7);
 }
 
 .rm-mobile-line {
   width: 2px;
   flex: 1;
-  min-height: 36px;
-  background: linear-gradient(to bottom, rgba(255,107,107,0.4), rgba(255,107,107,0.08));
+  min-height: 32px;
+  background: linear-gradient(to bottom, rgba(255,77,148,0.4), rgba(255,77,148,0.06));
   margin: 6px 0;
 }
 
 .rm-mobile-card {
   flex: 1;
-  padding: 20px 22px;
+  padding: 18px 20px;
+  border-radius: 14px;
+}
+
+.rm-mobile-card--final {
+  border-color: rgba(255,215,0,0.25) !important;
+  background: rgba(255,215,0,0.04) !important;
+}
+
+.rm-city-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 4px 0 8px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.rm-city-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted-dark);
+  line-height: 1.72;
+  margin-bottom: 12px;
 }
 
 @media (max-width: 860px) {
-  .rm-scene   { display: none; }
-  .rm-mobile  { display: flex; flex-direction: column; }
+  .rm-scene        { display: none; }
+  .rm-mobile       { display: flex; flex-direction: column; }
+  /* Collapse description cards to 2-col on tablet */
+  .rm-cards        { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 540px) {
+  /* Single-col description cards on phone */
+  .rm-cards        { grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+  .rm-mobile-stop  { gap: 12px; margin-bottom: 18px; }
+  .rm-mobile-card  { padding: 14px 16px; }
+  .rm-city-name    { font-size: 1.2rem; }
+  .rm-city-desc    { font-size: 0.82rem; }
+  .tc-region       { font-size: 0.6rem; }
+  .tc-tag          { font-size: 0.58rem; padding: 2px 8px; }
 }
