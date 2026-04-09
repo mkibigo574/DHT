@@ -11,7 +11,7 @@ const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 // ============================================================
 //  Types
 // ============================================================
-type Session = { access_token: string; email: string }
+type Session = { access_token: string; refresh_token: string; email: string }
 type Registration = {
   id: string
   name: string
@@ -38,7 +38,20 @@ type Contact = {
   status: string
   created_at: string
 }
-type TabId = 'overview' | 'participants' | 'donations' | 'messages'
+type Audition = {
+  id: string
+  name: string
+  email: string
+  phone: string
+  region: string
+  performance_type: string
+  genre: string
+  video_link: string
+  bio: string
+  status: string
+  created_at: string
+}
+type TabId = 'overview' | 'participants' | 'auditions' | 'donations' | 'messages'
 
 // ============================================================
 //  Utility functions
@@ -137,14 +150,25 @@ async function sbFetch(
   return text ? (JSON.parse(text) as unknown) : null
 }
 
-async function sbAuth(email: string, password: string): Promise<{ access_token: string; user?: { email?: string } }> {
+async function sbAuth(email: string, password: string): Promise<{ access_token: string; refresh_token: string; user?: { email?: string } }> {
   const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
     method: 'POST',
     headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   })
-  const data = await res.json() as { access_token: string; user?: { email?: string }; error_description?: string; msg?: string }
+  const data = await res.json() as { access_token: string; refresh_token: string; user?: { email?: string }; error_description?: string; msg?: string }
   if (!res.ok) throw new Error(data.error_description ?? data.msg ?? 'Login failed')
+  return data
+}
+
+async function sbRefreshSession(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+  const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  })
+  const data = await res.json() as { access_token: string; refresh_token: string; error_description?: string; msg?: string }
+  if (!res.ok) throw new Error(data.error_description ?? data.msg ?? 'Refresh failed')
   return data
 }
 
@@ -202,8 +226,14 @@ export default function AdminPage() {
 
   // Data
   const [registrations, setRegistrations] = useState<Registration[]>([])
+  const [auditions, setAuditions] = useState<Audition[]>([])
   const [donations, setDonations] = useState<Donation[]>([])
   const [contacts, setContacts] = useState<Contact[]>([])
+
+  // Auditions filters
+  const [auditionSearch, setAuditionSearch] = useState('')
+  const [auditionRegionFilter, setAuditionRegionFilter] = useState('')
+  const [auditionStatusFilter, setAuditionStatusFilter] = useState('')
 
   // Login form
   const [loginEmail, setLoginEmail] = useState('')
@@ -244,18 +274,49 @@ export default function AdminPage() {
   // Load all data whenever session changes (and is set)
   const loadAllData = useCallback(
     async (sess: Session) => {
-      try {
-        const [regs, dons, cons] = await Promise.all([
-          sbFetch('/rest/v1/registrations?select=*&order=created_at.desc', sess),
-          sbFetch('/rest/v1/donations?select=*&order=created_at.desc', sess),
-          sbFetch('/rest/v1/contacts?select=*&order=created_at.desc', sess),
-        ])
-        setRegistrations((regs as Registration[]) ?? [])
-        setDonations((dons as Donation[]) ?? [])
-        setContacts((cons as Contact[]) ?? [])
-      } catch (err) {
-        console.error('Load error:', err)
+      // Try fetching; if JWT expired, refresh and retry once
+      async function fetchWithRefresh(path: string, currentSess: Session): Promise<unknown> {
+        try {
+          return await sbFetch(path, currentSess)
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : ''
+          if (msg.includes('JWT expired') || msg.includes('token is expired') || msg === 'Unauthorized') {
+            throw Object.assign(new Error(msg), { isExpired: true })
+          }
+          throw err
+        }
       }
+
+      const [regs, auds, dons, cons] = await Promise.allSettled([
+        fetchWithRefresh('/rest/v1/registrations?select=*&order=created_at.desc', sess),
+        fetchWithRefresh('/rest/v1/auditions?select=*&order=created_at.desc', sess),
+        fetchWithRefresh('/rest/v1/donations?select=*&order=created_at.desc', sess),
+        fetchWithRefresh('/rest/v1/contacts?select=*&order=created_at.desc', sess),
+      ])
+
+      // Check if any result indicates JWT expiry — if so, refresh and re-trigger via setSession
+      const anyExpired = [regs, auds, dons, cons].some(
+        (r) => r.status === 'rejected' && (r.reason as { isExpired?: boolean })?.isExpired,
+      )
+      if (anyExpired) {
+        try {
+          const refreshed = await sbRefreshSession(sess.refresh_token)
+          const newSess: Session = { ...sess, access_token: refreshed.access_token, refresh_token: refreshed.refresh_token }
+          sessionStorage.setItem('dht_admin_session', JSON.stringify(newSess))
+          setSession(newSess) // triggers useEffect → loadAllData with fresh token
+        } catch {
+          // Refresh failed — force sign out
+          sessionStorage.removeItem('dht_admin_session')
+          setSession(null)
+        }
+        return
+      }
+
+      if (regs.status === 'fulfilled') setRegistrations((regs.value as Registration[]) ?? [])
+      if (auds.status === 'fulfilled') setAuditions((auds.value as Audition[]) ?? [])
+      else console.error('Auditions load error:', auds.reason)
+      if (dons.status === 'fulfilled') setDonations((dons.value as Donation[]) ?? [])
+      if (cons.status === 'fulfilled') setContacts((cons.value as Contact[]) ?? [])
     },
     [],
   )
@@ -288,6 +349,7 @@ export default function AdminPage() {
       const data = await sbAuth(loginEmail.trim(), loginPassword)
       const sess: Session = {
         access_token: data.access_token,
+        refresh_token: data.refresh_token,
         email: data.user?.email ?? loginEmail.trim(),
       }
       sessionStorage.setItem('dht_admin_session', JSON.stringify(sess))
@@ -307,6 +369,7 @@ export default function AdminPage() {
     sessionStorage.removeItem('dht_admin_session')
     setSession(null)
     setRegistrations([])
+    setAuditions([])
     setDonations([])
     setContacts([])
   }
@@ -410,6 +473,29 @@ export default function AdminPage() {
     }
   }
 
+  // --- Update audition status ---
+  async function handleAuditionStatusChange(id: string, newStatus: string) {
+    try {
+      await sbFetch(`/rest/v1/auditions?id=eq.${id}`, session, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      setAuditions((prev) => prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a)))
+    } catch (err: unknown) {
+      alert('Error updating status: ' + (err instanceof Error ? err.message : String(err)))
+    }
+  }
+
+  // Filtered auditions
+  const filteredAuditions = auditions.filter((a) => {
+    const q = auditionSearch.toLowerCase()
+    const matchSearch = !q || (a.name || '').toLowerCase().includes(q) || (a.email || '').toLowerCase().includes(q) || (a.genre || '').toLowerCase().includes(q)
+    const matchRegion = !auditionRegionFilter || a.region === auditionRegionFilter
+    const matchStatus = !auditionStatusFilter || (a.status || 'pending') === auditionStatusFilter
+    return matchSearch && matchRegion && matchStatus
+  })
+
   // --- Navigate tabs ---
   function goTab(tab: TabId) {
     setActiveTab(tab)
@@ -425,7 +511,7 @@ export default function AdminPage() {
         <div className="login-screen">
           <div className="login-card">
             <div className="login-logo">
-              <img src="/logo.jpeg" alt="DHT" className="login-logo-img" />
+              <img src="/assets/images/logo.jpeg" alt="DHT" className="login-logo-img" />
               <div>
                 <div className="login-logo-text">
                   DARWIN<span>HAS</span>TALENT
@@ -477,7 +563,7 @@ export default function AdminPage() {
         {/* Sidebar */}
         <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
           <div className="sidebar-logo">
-            <img src="/logo.jpeg" alt="DHT" className="sidebar-logo-img" />
+            <img src="/assets/images/logo.jpeg" alt="DHT" className="sidebar-logo-img" />
             <div>
               <div className="sidebar-logo-text">DHT</div>
               <div className="sidebar-logo-sub">Admin</div>
@@ -509,6 +595,21 @@ export default function AdminPage() {
               Participants
               {registrations.length > 0 && (
                 <span className="nav-badge">{registrations.length}</span>
+              )}
+            </button>
+            <button
+              className={`nav-item${activeTab === 'auditions' ? ' active' : ''}`}
+              onClick={() => goTab('auditions')}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+              Auditions
+              {auditions.filter(a => (a.status || 'pending') === 'pending').length > 0 && (
+                <span className="nav-badge">{auditions.filter(a => (a.status || 'pending') === 'pending').length}</span>
               )}
             </button>
             <button
@@ -617,6 +718,20 @@ export default function AdminPage() {
               </div>
               <div className="stat-card">
                 <div className="stat-icon stat-icon--purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                </div>
+                <div className="stat-body">
+                  <div className="stat-value">{auditions.length}</div>
+                  <div className="stat-label">Audition Applications</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
@@ -787,6 +902,121 @@ export default function AdminPage() {
             </div>
             <div className="table-footer">
               {filteredParticipants.length} of {registrations.length} registrations
+            </div>
+          </section>
+
+          {/* ===== AUDITIONS TAB ===== */}
+          <section className={`tab-panel${activeTab === 'auditions' ? ' active' : ''}`}>
+            <div className="page-header">
+              <h1>Auditions</h1>
+              <button
+                className="btn-export"
+                onClick={() =>
+                  exportCSV(
+                    auditions as unknown as Record<string, unknown>[],
+                    ['name', 'email', 'phone', 'region', 'performance_type', 'genre', 'video_link', 'status', 'created_at'],
+                    'dht_auditions.csv',
+                  )
+                }
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Export CSV
+              </button>
+            </div>
+            <div className="table-controls">
+              <input
+                type="search"
+                className="table-search"
+                placeholder="Search name, email or genre…"
+                value={auditionSearch}
+                onChange={(e) => setAuditionSearch(e.target.value)}
+              />
+              <select
+                className="table-filter"
+                value={auditionRegionFilter}
+                onChange={(e) => setAuditionRegionFilter(e.target.value)}
+              >
+                <option value="">All Regions</option>
+                <option value="Darwin / Top End">Darwin / Top End</option>
+                <option value="Katherine / Big Rivers">Katherine</option>
+                <option value="Tennant Creek / Barkly">Tennant Creek</option>
+                <option value="Alice Springs / Red Centre">Alice Springs</option>
+                <option value="Outside the NT">Outside NT</option>
+              </select>
+              <select
+                className="table-filter"
+                value={auditionStatusFilter}
+                onChange={(e) => setAuditionStatusFilter(e.target.value)}
+              >
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+              </select>
+            </div>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Region</th>
+                    <th>Type</th>
+                    <th>Genre</th>
+                    <th>Video</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAuditions.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="table-empty">No audition applications found.</td>
+                    </tr>
+                  ) : (
+                    filteredAuditions.map((a) => (
+                      <tr key={a.id}>
+                        <td style={{ whiteSpace: 'nowrap' }}>{formatDate(a.created_at)}</td>
+                        <td>{a.name || '—'}</td>
+                        <td>
+                          <a href={`mailto:${a.email}`} style={{ color: 'var(--primary)' }}>{a.email || '—'}</a>
+                        </td>
+                        <td><span className="cell-truncate">{a.region || '—'}</span></td>
+                        <td>{a.performance_type || '—'}</td>
+                        <td>{a.genre || '—'}</td>
+                        <td>
+                          {a.video_link ? (
+                            <a href={a.video_link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>
+                              View
+                            </a>
+                          ) : '—'}
+                        </td>
+                        <td>
+                          <select
+                            className="status-select"
+                            value={a.status || 'pending'}
+                            onChange={(e) => handleAuditionStatusChange(a.id, e.target.value)}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="reviewing">Reviewing</option>
+                            <option value="accepted">Accepted</option>
+                            <option value="declined">Declined</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-footer">
+              {filteredAuditions.length} of {auditions.length} applications ·{' '}
+              {auditions.filter(a => (a.status || 'pending') === 'pending').length} pending review
             </div>
           </section>
 

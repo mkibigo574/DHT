@@ -1,13 +1,107 @@
 'use client'
 import { useState, useEffect } from 'react'
 
-const GOAL = 50_000   // AUD — update this as the campaign grows
+const GOAL = 50_000
 
 const PRESETS = [
-  { amount: 10,  label: 'Light a Mic',       emoji: '🎤', sub: 'Covers sound gear for one audition' },
-  { amount: 25,  label: 'Ignite a Region',   emoji: '🔥', sub: 'Helps fund a regional heat event'   },
-  { amount: 50,  label: 'Fuel the Stage',    emoji: '🎸', sub: 'Supports artist travel between stops'},
-  { amount: 100, label: 'Back the Movement', emoji: '⭐', sub: 'Funds mentorship for a young artist' },
+  {
+    amount: 10,
+    label: 'Light a Mic',
+    sub: 'Covers sound gear for one audition',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+        <line x1="12" y1="19" x2="12" y2="23" />
+        <line x1="8" y1="23" x2="16" y2="23" />
+      </svg>
+    ),
+  },
+  {
+    amount: 25,
+    label: 'Ignite a Region',
+    sub: 'Helps fund a regional heat event',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
+  },
+  {
+    amount: 50,
+    label: 'Fuel the Stage',
+    sub: 'Supports artist travel between stops',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M9 18V5l12-2v13" />
+        <circle cx="6" cy="18" r="3" />
+        <circle cx="18" cy="16" r="3" />
+      </svg>
+    ),
+  },
+  {
+    amount: 100,
+    label: 'Back the Movement',
+    sub: 'Funds mentorship for a young artist',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    ),
+  },
+]
+
+const IMPACT = [
+  {
+    text: '4 regional heat events across the NT',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="13" rx="2" />
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+        <line x1="12" y1="12" x2="12" y2="16" />
+        <line x1="10" y1="14" x2="14" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    text: 'Professional mentorship for young artists',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+      </svg>
+    ),
+  },
+  {
+    text: 'Production, equipment & artist travel',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="15" height="13" rx="1" />
+        <path d="M16 8h4l3 3v3h-7V8z" />
+        <circle cx="5.5" cy="18.5" r="2.5" />
+        <circle cx="18.5" cy="18.5" r="2.5" />
+      </svg>
+    ),
+  },
+  {
+    text: 'Recording & media exposure for finalists',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="15" height="10" rx="2" />
+        <path d="M17 9l4-2v10l-4-2V9z" />
+      </svg>
+    ),
+  },
+  {
+    text: 'Indigenous community music programs',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="12" cy="5" rx="8" ry="3" />
+        <path d="M4 5v8c0 1.66 3.58 3 8 3s8-1.34 8-3V5" />
+        <path d="M4 9c0 1.66 3.58 3 8 3s8-1.34 8-3" />
+      </svg>
+    ),
+  },
 ]
 
 function fmt(n: number) {
@@ -16,14 +110,13 @@ function fmt(n: number) {
 }
 
 export default function Donate() {
-  const [selected, setSelected]   = useState(25)
-  const [custom,   setCustom]     = useState('')
-  const [loading,  setLoading]    = useState(false)
-  const [error,    setError]      = useState('')
-  const [raised,   setRaised]     = useState<number | null>(null)
-  const [bankOpen, setBankOpen]   = useState(false)
+  const [selected, setSelected] = useState(25)
+  const [custom, setCustom] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [raised, setRaised] = useState<number | null>(null)
+  const [bankOpen, setBankOpen] = useState(false)
 
-  // Fetch total raised (cached 60 s on the edge)
   useEffect(() => {
     fetch('/api/donate/total')
       .then(r => r.json())
@@ -31,18 +124,18 @@ export default function Donate() {
       .catch(() => setRaised(0))
   }, [])
 
-  const parsedCustom   = parseFloat(custom)
-  const effectiveDols  = custom && !isNaN(parsedCustom) && parsedCustom > 0 ? parsedCustom : selected
-  const amountCents    = Math.round(effectiveDols * 100)
-  const progress       = raised !== null ? Math.min(100, (raised / GOAL) * 100) : 0
-  const displayAmt     = effectiveDols % 1 === 0 ? `$${effectiveDols}` : `$${effectiveDols.toFixed(2)}`
+  const parsedCustom = parseFloat(custom)
+  const effectiveDols = custom && !isNaN(parsedCustom) && parsedCustom > 0 ? parsedCustom : selected
+  const amountCents = Math.round(effectiveDols * 100)
+  const progress = raised !== null ? Math.min(100, (raised / GOAL) * 100) : 0
+  const displayAmt = effectiveDols % 1 === 0 ? `$${effectiveDols}` : `$${effectiveDols.toFixed(2)}`
 
   async function handleDonate() {
     setError('')
     if (amountCents < 100) { setError('Minimum donation is $1.'); return }
     setLoading(true)
     try {
-      const res  = await fetch('/api/donate/checkout', {
+      const res = await fetch('/api/donate/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: amountCents }),
@@ -65,7 +158,6 @@ export default function Donate() {
       <div className="donate-bg-glow" />
       <div className="container">
 
-        {/* ── Section header ── */}
         <div className="section-header on-dark">
           <p className="section-tag">Support the Movement</p>
           <h2 className="section-title" style={{ color: '#fff' }}>
@@ -74,7 +166,6 @@ export default function Donate() {
           </h2>
         </div>
 
-        {/* ── Emotional copy ── */}
         <p className="donate-story">
           Every year, talented young musicians from Alice Springs, Katherine, and Tennant Creek
           face a choice: stay in the NT or move south just to be heard. Darwin Has Talent changes
@@ -82,19 +173,13 @@ export default function Donate() {
           travels to every corner of the Territory — so NT talent gets to shine right here at home.
         </p>
 
-        {/* ── Progress bar ── */}
         <div className="donate-progress-widget">
           <div className="donate-progress-track">
-            <div
-              className="donate-progress-fill"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="donate-progress-fill" style={{ width: `${progress}%` }} />
           </div>
           <div className="donate-progress-meta">
             <div className="donate-progress-stat">
-              <span className="donate-progress-num">
-                {raised !== null ? fmt(raised) : '—'}
-              </span>
+              <span className="donate-progress-num">{raised !== null ? fmt(raised) : '—'}</span>
               <span className="donate-progress-lbl">raised</span>
             </div>
             <div className="donate-progress-pct">
@@ -107,14 +192,12 @@ export default function Donate() {
           </div>
         </div>
 
-        {/* ── Main grid ── */}
         <div className="donate-main-grid">
 
-          {/* ─── LEFT: form ─── */}
+          {/* LEFT: form */}
           <div className="donate-form-col glass-card">
             <h3 className="donate-form-heading">Choose Your Impact</h3>
 
-            {/* Labeled preset buttons */}
             <div className="donate-presets">
               {PRESETS.map((p) => (
                 <button
@@ -123,7 +206,7 @@ export default function Donate() {
                   className={`donate-preset${!custom && selected === p.amount ? ' active' : ''}`}
                   onClick={() => { setSelected(p.amount); setCustom(''); setError('') }}
                 >
-                  <span className="dp-emoji" aria-hidden="true">{p.emoji}</span>
+                  <span className="dp-icon" aria-hidden="true">{p.icon}</span>
                   <span className="dp-body">
                     <span className="dp-label">{p.label}</span>
                     <span className="dp-sub">{p.sub}</span>
@@ -133,7 +216,6 @@ export default function Donate() {
               ))}
             </div>
 
-            {/* Custom amount */}
             <div className="donate-custom-wrap">
               <span className="donate-custom-symbol">$</span>
               <input
@@ -149,7 +231,6 @@ export default function Donate() {
 
             {error && <p className="donate-error" role="alert">{error}</p>}
 
-            {/* CTA */}
             <button
               type="button"
               className="btn btn-primary donate-cta-btn"
@@ -168,7 +249,6 @@ export default function Donate() {
               )}
             </button>
 
-            {/* Trust row */}
             <div className="donate-trust-row">
               <svg viewBox="0 0 20 20" fill="currentColor" width="12" aria-hidden="true">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -177,29 +257,20 @@ export default function Donate() {
             </div>
           </div>
 
-          {/* ─── RIGHT: impact + sponsorship ─── */}
+          {/* RIGHT: impact + sponsorship */}
           <div className="donate-info-col">
-
-            {/* Impact list */}
             <div className="donate-impact glass-card">
               <h3 className="donate-impact-heading">Where Your Money Goes</h3>
               <ul className="donate-impact-list">
-                {[
-                  { emoji: '🎪', text: '4 regional heat events across the NT' },
-                  { emoji: '🎓', text: 'Professional mentorship for young artists' },
-                  { emoji: '🚌', text: 'Production, equipment & artist travel' },
-                  { emoji: '🎬', text: 'Recording & media exposure for finalists' },
-                  { emoji: '🪘', text: 'Indigenous community music programs' },
-                ].map((item) => (
+                {IMPACT.map((item) => (
                   <li key={item.text} className="donate-impact-item">
-                    <span className="donate-impact-emoji" aria-hidden="true">{item.emoji}</span>
+                    <span className="donate-impact-icon" aria-hidden="true">{item.icon}</span>
                     <span>{item.text}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Sponsorship CTA */}
             <div className="donate-sponsor glass-card">
               <p className="donate-sponsor-heading">Want to give more?</p>
               <p className="donate-sponsor-body">
@@ -210,11 +281,10 @@ export default function Donate() {
               </a>
               <p className="donate-note">ABN: 23 372 902 339</p>
             </div>
-
           </div>
         </div>
 
-        {/* ── Bank transfer accordion ── */}
+        {/* Bank transfer accordion */}
         <div className="donate-bank-wrap">
           <button
             type="button"
@@ -222,14 +292,12 @@ export default function Donate() {
             onClick={() => setBankOpen((o) => !o)}
             aria-expanded={bankOpen}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-              strokeLinecap="round" strokeLinejoin="round" width="17" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="17" aria-hidden="true">
               <rect x="2" y="5" width="20" height="14" rx="2" />
               <line x1="2" y1="10" x2="22" y2="10" />
             </svg>
             Prefer a direct bank transfer?
-            <svg viewBox="0 0 20 20" fill="currentColor" width="15"
-              className={`donate-bank-chevron${bankOpen ? ' open' : ''}`} aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="15" className={`donate-bank-chevron${bankOpen ? ' open' : ''}`} aria-hidden="true">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
@@ -243,12 +311,10 @@ export default function Donate() {
                 </div>
                 <div className="bank-row">
                   <span className="bank-label">BSB</span>
-                  {/* ← Replace with real BSB before launch */}
                   <span className="bank-value bank-placeholder">[Your BSB]</span>
                 </div>
                 <div className="bank-row">
                   <span className="bank-label">Account No.</span>
-                  {/* ← Replace with real account number before launch */}
                   <span className="bank-value bank-placeholder">[Your Account No.]</span>
                 </div>
                 <div className="bank-row">
