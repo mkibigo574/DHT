@@ -14,6 +14,101 @@ interface Resource {
   icon: React.ReactNode
 }
 
+// ── Request-by-email modal ────────────────────────────────────
+function RequestModal({ resource, onClose }: { resource: Resource; onClose: () => void }) {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setStatus('loading')
+    setErrorMsg('')
+    try {
+      const res = await fetch('/api/request-doc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, document: resource.title }),
+      })
+      const data = await res.json() as { ok: boolean; error?: string }
+      if (!data.ok) throw new Error(data.error ?? 'Request failed')
+      setStatus('success')
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="aud-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="aud-modal req-modal" role="dialog" aria-modal="true">
+        <div className="aud-modal-header">
+          <div className="aud-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </div>
+          <div className="aud-header-text">
+            <h2>Request Document</h2>
+            <p>{resource.title}</p>
+          </div>
+          <button className="aud-close" onClick={onClose} aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {status === 'success' ? (
+          <div className="aud-success">
+            <div className="aud-success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <h3>Request Sent!</h3>
+            <p>We&apos;ll email you the <strong>{resource.title}</strong> within 48 hours.</p>
+            <button className="btn btn-primary" onClick={onClose}>Close</button>
+          </div>
+        ) : (
+          <form className="aud-form" onSubmit={handleSubmit} noValidate>
+            <p className="req-modal-intro">Enter your details and we&apos;ll send the document straight to your inbox.</p>
+            <div className="form-group">
+              <label>Your Name <span className="req">*</span></label>
+              <input type="text" required placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Email Address <span className="req">*</span></label>
+              <input type="email" required placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            {status === 'error' && <p className="aud-error">{errorMsg}</p>}
+            <div className="aud-form-footer">
+              <button type="submit" className="btn btn-primary aud-submit" disabled={status === 'loading'}>
+                {status === 'loading' ? (
+                  <><span className="donate-spinner" aria-hidden="true" /> Sending…</>
+                ) : (
+                  <>
+                    Send Me the Document
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15" style={{ marginLeft: 6 }}>
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const resources: Resource[] = [
   {
     type: 'form',
@@ -273,10 +368,12 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
 // ── Main Component ───────────────────────────────────────────
 export default function Resources() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [requestResource, setRequestResource] = useState<Resource | null>(null)
 
   return (
     <section className="section resources section--white" id="resources">
       {modalOpen && <AuditionModal onClose={() => setModalOpen(false)} />}
+      {requestResource && <RequestModal resource={requestResource} onClose={() => setRequestResource(null)} />}
 
       <div className="container">
         <div className="section-header">
@@ -309,12 +406,13 @@ export default function Resources() {
                       </svg>
                       {r.cta}
                     </a>
-                    <a
-                      href={`mailto:hello@darwinhastalents.com.au?subject=${encodeURIComponent(r.subject ?? '')}`}
+                    <button
+                      type="button"
                       className="resource-email-link"
+                      onClick={() => setRequestResource(r)}
                     >
                       Request by email
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>

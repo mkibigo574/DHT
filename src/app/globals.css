@@ -312,11 +312,12 @@ a:hover { color: var(--primary-hover); }
 
 /* ---------- HERO ---------- */
 .hero {
-  height: 100vh;
+  min-height: 100vh;
   background: #0d1420;
   display: flex;
   align-items: center;
   padding-top: 90px;
+  padding-bottom: 60px;
   position: relative;
   overflow: hidden;
 }
@@ -415,7 +416,7 @@ a:hover { color: var(--primary-hover); }
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 6vw, 5.4rem);
+  font-size: clamp(3.4rem, 7vw, 6.8rem);
   font-weight: 900;
   line-height: 1.04;
   color: #fff;
@@ -538,6 +539,15 @@ a:hover { color: var(--primary-hover); }
 .hero-prize-item svg {
   flex-shrink: 0;
   color: var(--primary);
+}
+
+/* Pulsing glow on the primary hero CTA to draw the eye */
+.hero-cta-main {
+  animation: ctaPulse 2.8s ease-in-out infinite;
+}
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,148,0.45); }
+  50%       { box-shadow: 0 0 0 12px rgba(255,77,148,0); }
 }
 
 /* ================================================
@@ -2250,8 +2260,21 @@ a:hover { color: var(--primary-hover); }
   color: var(--text-muted);
   text-decoration: underline;
   text-underline-offset: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
 }
 .resource-email-link:hover { color: var(--primary); }
+
+.req-modal { max-width: 440px; }
+.req-modal-intro {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
 
 /* ── Audition Modal ── */
 .aud-overlay {
@@ -2577,10 +2600,10 @@ a:hover { color: var(--primary-hover); }
   .nav-toggle.active span:nth-child(2) { opacity: 0; }
   .nav-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
   .navbar.scrolled .nav-toggle span { background: var(--secondary); }
-  .hero { height: 100vh; padding-top: 74px; }
+  .hero { min-height: 100vh; padding-top: 74px; padding-bottom: 48px; }
   .hero-layout { gap: 16px; }
   .hero-visual { order: -1; }
-  .hero-title { font-size: clamp(2rem, 7vw, 3rem); }
+  .hero-title { font-size: clamp(2.4rem, 8vw, 3.8rem); }
   .hero-subtitle { font-size: 0.92rem; margin-bottom: 18px; }
   .hero-prizes { margin: 10px 0 16px; gap: 5px; }
   .hero-prize-item { font-size: 0.82rem; }
@@ -2609,7 +2632,7 @@ a:hover { color: var(--primary-hover); }
   .hero-cta .btn { justify-content: center; }
   .form-row-2 { grid-template-columns: 1fr; }
   .portals-grid { max-width: 100%; }
-  .hero-title { font-size: clamp(1.7rem, 8vw, 2.4rem); }
+  .hero-title { font-size: clamp(2rem, 9vw, 2.8rem); }
   .hero-badge { font-size: 0.6rem; letter-spacing: 2px; padding: 5px 12px; margin-bottom: 14px; }
   .countdown-unit { min-width: 48px; padding: 8px 8px 6px; border-radius: 10px; }
   .countdown-num  { font-size: 1.3rem; }
