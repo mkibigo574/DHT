@@ -15,10 +15,13 @@ function getTimeLeft() {
 
 export default function Hero() {
   const [videoLoaded, setVideoLoaded] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft())
+  // null on the server — avoids SSR/client timestamp mismatch.
+  // Populated on first client tick so the displayed value is always fresh.
+  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof getTimeLeft> | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
+    setTimeLeft(getTimeLeft())                             // immediate first value
     const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000)
     return () => clearInterval(timer)
   }, [])
@@ -118,22 +121,22 @@ export default function Hero() {
             <p className="countdown-eyebrow">Auditions Open In</p>
             <div className="countdown-grid">
               <div className="countdown-unit">
-                <span className="countdown-num">{timeLeft.days}</span>
+                <span className="countdown-num">{timeLeft ? timeLeft.days : '--'}</span>
                 <span className="countdown-lbl">Days</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num">{pad(timeLeft.hours)}</span>
+                <span className="countdown-num">{timeLeft ? pad(timeLeft.hours) : '--'}</span>
                 <span className="countdown-lbl">Hours</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num">{pad(timeLeft.mins)}</span>
+                <span className="countdown-num">{timeLeft ? pad(timeLeft.mins) : '--'}</span>
                 <span className="countdown-lbl">Mins</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num">{pad(timeLeft.secs)}</span>
+                <span className="countdown-num">{timeLeft ? pad(timeLeft.secs) : '--'}</span>
                 <span className="countdown-lbl">Secs</span>
               </div>
             </div>

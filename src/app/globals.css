@@ -1660,42 +1660,365 @@ a:hover { color: var(--primary-hover); }
 }
 
 /* ================================================
-   DONATE
+   DONATE — upgraded
    ================================================ */
-.donate-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-top: 48px;
+
+/* Section background glow */
+.donate-bg-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(255,77,148,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 60%, rgba(255,215,0,0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
-.donate-card {
-  padding: 36px 30px;
+
+/* Emotional copy */
+.donate-story {
+  max-width: 720px;
+  margin: 0 auto 48px;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--text-muted-dark);
+  line-height: 1.8;
+}
+
+/* ── Progress bar widget ── */
+.donate-progress-widget {
+  max-width: 760px;
+  margin: 0 auto 52px;
+}
+.donate-progress-track {
+  height: 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.donate-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #ff4d94 0%, #ffd700 100%);
+  transition: width 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 18px rgba(255,77,148,0.45);
+}
+/* Shimmer sweep on the bar */
+.donate-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  animation: bar-shimmer 2.2s ease-in-out infinite;
+}
+@keyframes bar-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.donate-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.donate-progress-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.donate-progress-num {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+.donate-progress-lbl {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted-dark);
+}
+.donate-progress-pct {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ff4d94;
+  letter-spacing: 0.04em;
+}
+
+/* ── Main grid: form (left) + info (right) ── */
+.donate-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ─ Form card ─ */
+.donate-form-col {
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.donate-form-heading {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* Labeled preset buttons */
+.donate-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.donate-preset {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.donate-preset:hover {
+  border-color: rgba(255,77,148,0.4);
+  background: rgba(255,77,148,0.07);
+}
+.donate-preset.active {
+  border-color: #ff4d94;
+  background: rgba(255,77,148,0.14);
+  box-shadow: 0 0 0 3px rgba(255,77,148,0.18), inset 0 0 20px rgba(255,77,148,0.06);
+}
+.dp-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.dp-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dp-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.dp-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted-dark);
+  line-height: 1.3;
+}
+.dp-price {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+}
+.donate-preset.active .dp-price { color: #ff4d94; }
+
+/* Custom amount input */
+.donate-custom-wrap {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.18s;
+}
+.donate-custom-wrap:focus-within { border-color: rgba(255,77,148,0.55); }
+.donate-custom-symbol {
+  padding: 0 8px 0 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  pointer-events: none;
+}
+.donate-custom-input {
+  flex: 1;
+  padding: 12px 16px 12px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.donate-custom-input::placeholder { color: rgba(255,255,255,0.22); }
+.donate-custom-input::-webkit-outer-spin-button,
+.donate-custom-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Error */
+.donate-error {
+  font-size: 0.82rem;
+  color: #ff8080;
+  background: rgba(255,107,107,0.1);
+  border: 1px solid rgba(255,107,107,0.22);
+  border-radius: 8px;
+  padding: 9px 14px;
+}
+
+/* CTA button */
+.donate-cta-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 15px 20px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.donate-cta-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Loading spinner inside button */
+.donate-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Trust row */
+.donate-trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 0.04em;
+}
+
+/* ─ Info column ─ */
+.donate-info-col {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-.donate-card-icon {
-  width: 52px; height: 52px;
-  border-radius: var(--r-md);
-  background: var(--primary-soft);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--primary);
+.donate-impact {
+  padding: 28px 26px;
 }
-.donate-card h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
+.donate-impact-heading {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.donate-impact-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.donate-impact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted-dark);
+  line-height: 1.4;
+}
+.donate-impact-emoji {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.donate-sponsor {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-color: rgba(255,215,0,0.18);
+  background: rgba(255,215,0,0.04);
+}
+.donate-sponsor-heading {
+  font-size: 0.95rem;
+  font-weight: 800;
   color: #fff;
 }
-.donate-card p {
-  font-size: 0.95rem;
+.donate-sponsor-body {
+  font-size: 0.84rem;
   color: var(--text-muted-dark);
   line-height: 1.6;
 }
+.donate-sponsor-btn {
+  align-self: flex-start;
+  padding: 9px 18px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+.donate-note {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.22);
+  margin-top: 2px;
+}
+
+/* ── Bank transfer accordion ── */
+.donate-bank-wrap {
+  margin-top: 36px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 24px;
+}
+.donate-bank-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted-dark);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0;
+  transition: color 0.18s;
+}
+.donate-bank-toggle:hover { color: #fff; }
+.donate-bank-chevron {
+  transition: transform 0.22s;
+  margin-left: auto;
+}
+.donate-bank-chevron.open { transform: rotate(180deg); }
+.donate-bank-body {
+  margin-top: 16px;
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.donate-bank-note {
+  font-size: 0.82rem;
+  color: var(--text-muted-dark);
+  line-height: 1.65;
+}
+.donate-bank-note a {
+  color: #ff4d94;
+  text-decoration: none;
+}
+.donate-bank-note a:hover { text-decoration: underline; }
+
+/* ── Shared bank table styles ── */
 .bank-details {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--r-md);
-  padding: 18px 20px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1707,41 +2030,163 @@ a:hover { color: var(--primary-hover); }
   gap: 12px;
 }
 .bank-label {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-muted-dark);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 .bank-value {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
   color: #fff;
   font-family: var(--font-display);
 }
-.bank-placeholder { color: var(--primary); font-style: italic; }
-.donate-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.donate-list li {
+.bank-placeholder { color: rgba(255,77,148,0.8); font-style: italic; }
+
+/* ── Success page ── */
+.ds-page {
+  min-height: 100vh;
+  background: var(--bg-dark);
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.92rem;
-  color: var(--text-muted-dark);
+  justify-content: center;
+  padding: 60px 20px;
 }
-.donate-list li svg { color: var(--primary); flex-shrink: 0; }
-.donate-card--cta {
-  background: linear-gradient(135deg, rgba(255,107,107,0.12) 0%, rgba(255,154,139,0.06) 100%);
-  border-color: rgba(255,107,107,0.25);
+.ds-card {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
 }
-.donate-note {
-  font-size: 0.8rem;
-  color: var(--text-muted-dark);
-  margin-top: 8px;
+/* SVG draw-on checkmark */
+.ds-check-ring {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 28px;
+}
+.ds-check-svg { width: 100%; height: 100%; }
+.ds-check-circle {
+  stroke: #ffd700;
+  stroke-width: 2.5;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: draw-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+.ds-check-tick {
+  stroke: #ffd700;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: draw-tick 0.4s 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  filter: drop-shadow(0 0 6px rgba(255,215,0,0.6));
+}
+@keyframes draw-circle {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes draw-tick {
+  to { stroke-dashoffset: 0; }
+}
+.ds-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #ffd700;
+  margin-bottom: 10px;
+  text-shadow: 0 0 14px rgba(255,215,0,0.5);
+}
+.ds-heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.ds-amount-line {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.ds-amount {
+  color: #ffd700;
+  font-weight: 800;
+}
+.ds-body {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.42);
+  line-height: 1.75;
+  margin-bottom: 32px;
+}
+.ds-impact-strip {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.ds-impact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ds-impact-item span:first-child { font-size: 1.4rem; }
+.ds-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 26px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.ds-btn--gold {
+  background: rgba(255,215,0,0.14);
+  border: 1px solid rgba(255,215,0,0.4);
+  color: #ffd700;
+}
+.ds-btn--gold:hover {
+  background: rgba(255,215,0,0.22);
+  box-shadow: 0 0 20px rgba(255,215,0,0.2);
+}
+.ds-btn--ghost {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+}
+.ds-btn--ghost:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .donate-main-grid { grid-template-columns: 1fr; }
+  .donate-info-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+}
+@media (max-width: 600px) {
+  .donate-story { font-size: 0.93rem; margin-bottom: 36px; }
+  .donate-form-col { padding: 24px 18px; }
+  .donate-preset { padding: 12px 14px; gap: 10px; }
+  .dp-price { font-size: 1.1rem; }
+  .donate-info-col { grid-template-columns: 1fr; }
+  .donate-progress-num { font-size: 1.1rem; }
+  .ds-impact-strip { gap: 16px; }
 }
 
 /* ================================================
@@ -2036,6 +2481,27 @@ a:hover { color: var(--primary-hover); }
   overflow: visible;
 }
 
+/* SVG Territory Map */
+.rm-map-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 36px auto 8px;
+}
+
+.rm-map-svg {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  display: block;
+}
+
+.rm-card-city {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
 /* Description cards below the road */
 .rm-cards {
   display: grid;
@@ -2157,7 +2623,7 @@ a:hover { color: var(--primary-hover); }
 
 @media (max-width: 860px) {
   .rm-scene        { display: none; }
-  .rm-mobile       { display: flex; flex-direction: column; }
+  .rm-mobile       { display: none; }
   /* Collapse description cards to 2-col on tablet */
   .rm-cards        { grid-template-columns: repeat(2, 1fr); }
 }
@@ -2165,8 +2631,7 @@ a:hover { color: var(--primary-hover); }
 @media (max-width: 540px) {
   /* Single-col description cards on phone */
   .rm-cards        { grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
-  .rm-mobile-stop  { gap: 12px; margin-bottom: 18px; }
-  .rm-mobile-card  { padding: 14px 16px; }
+  .rm-map-svg      { max-width: 100%; }
   .rm-city-name    { font-size: 1.2rem; }
   .rm-city-desc    { font-size: 0.82rem; }
   .tc-region       { font-size: 0.6rem; }

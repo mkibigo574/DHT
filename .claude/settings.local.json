@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node -e \"const Stripe = require\\('stripe'\\); console.log\\(Stripe.LATEST_API_VERSION\\)\")",
+      "Bash(node -e \"const s = require\\('C:/Users/Administrator/Desktop/dht-next/node_modules/stripe'\\); console.log\\(s.LATEST_API_VERSION || 'check pkg'\\)\")"
+    ]
+  }
+}
