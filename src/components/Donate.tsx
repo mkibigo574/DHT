@@ -324,7 +324,7 @@ export default function Donate() {
               </div>
               <p className="donate-bank-note">
                 After transferring, email{' '}
-                <a href="mailto:hello@darwinhastalents.com.au">hello@darwinhastalents.com.au</a>
+                <a href="mailto:admin@darwinhastalents.com.au">admin@darwinhastalents.com.au</a>
                 {' '}with your name and amount so we can thank you properly.
               </p>
             </div>

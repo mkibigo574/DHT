@@ -428,7 +428,7 @@ export default function Resources() {
           </svg>
           <p>
             Auditions for 2027 are now open. For enquiries contact{' '}
-            <a href="mailto:hello@darwinhastalents.com.au">hello@darwinhastalents.com.au</a>
+            <a href="mailto:admin@darwinhastalents.com.au">admin@darwinhastalents.com.au</a>
             {' '}— we respond within 48 hours.
           </p>
         </div>

@@ -642,6 +642,11 @@ export default function AdminPage() {
           </div>
         </aside>
 
+        {/* Sidebar backdrop */}
+        {sidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+        )}
+
         {/* Mobile header */}
         <header className="mobile-header">
           <button
@@ -664,13 +669,15 @@ export default function AdminPage() {
           <section className={`tab-panel${activeTab === 'overview' ? ' active' : ''}`}>
             <div className="page-header">
               <h1>Overview</h1>
-              <button className="btn-refresh" onClick={() => session && loadAllData(session)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <polyline points="23 4 23 10 17 10" />
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                </svg>
-                Refresh
-              </button>
+              <div className="page-actions">
+                <button className="btn-refresh" onClick={() => session && loadAllData(session)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <polyline points="23 4 23 10 17 10" />
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
             </div>
 
             {/* Stats grid */}
@@ -807,23 +814,25 @@ export default function AdminPage() {
           <section className={`tab-panel${activeTab === 'participants' ? ' active' : ''}`}>
             <div className="page-header">
               <h1>Participants</h1>
-              <button
-                className="btn-export"
-                onClick={() =>
-                  exportCSV(
-                    registrations as unknown as Record<string, unknown>[],
-                    ['name', 'email', 'role', 'region', 'created_at'],
-                    'dht_participants.csv',
-                  )
-                }
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Export CSV
-              </button>
+              <div className="page-actions">
+                <button
+                  className="btn-export"
+                  onClick={() =>
+                    exportCSV(
+                      registrations as unknown as Record<string, unknown>[],
+                      ['name', 'email', 'role', 'region', 'created_at'],
+                      'dht_participants.csv',
+                    )
+                  }
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export CSV
+                </button>
+              </div>
             </div>
             <div className="table-controls">
               <input
@@ -909,23 +918,25 @@ export default function AdminPage() {
           <section className={`tab-panel${activeTab === 'auditions' ? ' active' : ''}`}>
             <div className="page-header">
               <h1>Auditions</h1>
-              <button
-                className="btn-export"
-                onClick={() =>
-                  exportCSV(
-                    auditions as unknown as Record<string, unknown>[],
-                    ['name', 'email', 'phone', 'region', 'performance_type', 'genre', 'video_link', 'status', 'created_at'],
-                    'dht_auditions.csv',
-                  )
-                }
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Export CSV
-              </button>
+              <div className="page-actions">
+                <button
+                  className="btn-export"
+                  onClick={() =>
+                    exportCSV(
+                      auditions as unknown as Record<string, unknown>[],
+                      ['name', 'email', 'phone', 'region', 'performance_type', 'genre', 'video_link', 'status', 'created_at'],
+                      'dht_auditions.csv',
+                    )
+                  }
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export CSV
+                </button>
+              </div>
             </div>
             <div className="table-controls">
               <input
@@ -966,9 +977,9 @@ export default function AdminPage() {
                     <th>Date</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Region</th>
-                    <th>Type</th>
-                    <th>Genre</th>
+                    <th className="col-hide-sm">Region</th>
+                    <th className="col-hide-sm">Type</th>
+                    <th className="col-hide-sm">Genre</th>
                     <th>Video</th>
                     <th>Status</th>
                   </tr>
@@ -986,9 +997,9 @@ export default function AdminPage() {
                         <td>
                           <a href={`mailto:${a.email}`} style={{ color: 'var(--primary)' }}>{a.email || '—'}</a>
                         </td>
-                        <td><span className="cell-truncate">{a.region || '—'}</span></td>
-                        <td>{a.performance_type || '—'}</td>
-                        <td>{a.genre || '—'}</td>
+                        <td className="col-hide-sm"><span className="cell-truncate">{a.region || '—'}</span></td>
+                        <td className="col-hide-sm">{a.performance_type || '—'}</td>
+                        <td className="col-hide-sm">{a.genre || '—'}</td>
                         <td>
                           {a.video_link ? (
                             <a href={a.video_link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>
@@ -1024,16 +1035,18 @@ export default function AdminPage() {
           <section className={`tab-panel${activeTab === 'donations' ? ' active' : ''}`}>
             <div className="page-header">
               <h1>Donations</h1>
-              <button
-                className="btn-primary-action"
-                onClick={() => setDonationModalOpen(true)}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                Log Donation
-              </button>
+              <div className="page-actions">
+                <button
+                  className="btn-primary-action"
+                  onClick={() => setDonationModalOpen(true)}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Log Donation
+                </button>
+              </div>
             </div>
 
             <div className="donation-summary">
@@ -1063,8 +1076,8 @@ export default function AdminPage() {
                     <th>Name</th>
                     <th>Email</th>
                     <th>Amount</th>
-                    <th>Reference</th>
-                    <th>Notes</th>
+                    <th className="col-hide-sm">Reference</th>
+                    <th className="col-hide-sm">Notes</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -1092,8 +1105,8 @@ export default function AdminPage() {
                         <td style={{ color: 'var(--green)', fontWeight: 700 }}>
                           ${parseFloat(d.amount).toFixed(2)}
                         </td>
-                        <td>{d.reference || '—'}</td>
-                        <td>
+                        <td className="col-hide-sm">{d.reference || '—'}</td>
+                        <td className="col-hide-sm">
                           <span className="cell-truncate">{d.notes || '—'}</span>
                         </td>
                         <td>
@@ -1123,23 +1136,25 @@ export default function AdminPage() {
           <section className={`tab-panel${activeTab === 'messages' ? ' active' : ''}`}>
             <div className="page-header">
               <h1>Messages</h1>
-              <button
-                className="btn-export"
-                onClick={() =>
-                  exportCSV(
-                    contacts as unknown as Record<string, unknown>[],
-                    ['name', 'email', 'subject', 'message', 'status', 'created_at'],
-                    'dht_messages.csv',
-                  )
-                }
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Export CSV
-              </button>
+              <div className="page-actions">
+                <button
+                  className="btn-export"
+                  onClick={() =>
+                    exportCSV(
+                      contacts as unknown as Record<string, unknown>[],
+                      ['name', 'email', 'subject', 'message', 'status', 'created_at'],
+                      'dht_messages.csv',
+                    )
+                  }
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export CSV
+                </button>
+              </div>
             </div>
             <div className="table-controls">
               <input

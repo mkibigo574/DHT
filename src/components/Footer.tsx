@@ -66,7 +66,7 @@ export default function Footer() {
           <p>
             ABN: 23 372 902 339 &nbsp;&bull;&nbsp;{' '}
             <a href="mailto:admin@darwinhastalents.com.au">admin@darwinhastalents.com.au</a>{' '}
-            &nbsp;&bull;&nbsp; <a href="tel:0416941973">0416 941 973</a>
+            {/* &nbsp;&bull;&nbsp; <a href="tel:0416941973">0416 941 973</a> */}
           </p>
           <p>&copy; 2026 Darwin Has Talent. All rights reserved.</p>
         </div>

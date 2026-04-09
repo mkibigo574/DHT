@@ -1,49 +1,146 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
+
 const stops = [
   {
-    region: 'Red Centre',
     city: 'Alice Springs',
-    desc: "Where the journey begins. The ancient heart of Australia holds stories and sounds the world hasn't heard yet.",
+    region: 'Red Centre',
     tag: 'Opening Heat',
+    desc: "Where the journey begins. The ancient heart of Australia holds stories and sounds the world hasn't heard yet.",
+    lat: -23.698,
+    lng: 133.8807,
     isFinal: false,
-    cx: 243, cy: 453,
+    color: '#ff4d94',
   },
   {
-    region: 'Barkly Region',
     city: 'Tennant Creek',
+    region: 'Barkly Region',
+    tag: 'Regional Heat',
     desc: 'The crossroads of the Territory. Where the highway meets heritage, voices that deserve to be heard.',
-    tag: 'Regional Heat',
+    lat: -19.6479,
+    lng: 133.4085,
     isFinal: false,
-    cx: 258, cy: 318,
+    color: '#ff4d94',
   },
   {
-    region: 'Big Rivers Region',
     city: 'Katherine',
-    desc: 'Gorge country sets the scene for raw, unfiltered Territory talent. Known for resilience — and now, music.',
+    region: 'Big Rivers Region',
     tag: 'Regional Heat',
+    desc: 'Gorge country sets the scene for raw, unfiltered Territory talent. Known for resilience — and now, music.',
+    lat: -14.4652,
+    lng: 132.2635,
     isFinal: false,
-    cx: 166, cy: 146,
+    color: '#ff4d94',
   },
   {
-    region: 'Top End',
     city: 'Darwin',
-    desc: "The journey ends where the Territory's heart beats strongest. 3,000 km of music. One electrifying night.",
+    region: 'Top End',
     tag: 'Grand Finale ★',
+    desc: "The journey ends where the Territory's heart beats strongest. 3,000 km of music. One electrifying night.",
+    lat: -12.4634,
+    lng: 130.8456,
     isFinal: true,
-    cx: 98, cy: 79,
+    color: '#ffd700',
   },
 ]
 
-// Route path: Alice Springs → Tennant Creek → Katherine → Darwin
-const routePath =
-  'M 243,453 C 248,390 260,350 258,318 C 255,275 200,205 166,146 C 155,120 120,100 98,79'
-
-// Simplified Northern Territory outline
-const ntOutline =
-  'M 10,47 Q 82,22 200,20 Q 300,20 368,47 L 408,165 L 408,523 L 10,523 Z'
-
 export default function Roadmap() {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<unknown>(null)
+
+  useEffect(() => {
+    if (mapInstanceRef.current || !mapRef.current) return
+
+    import('leaflet').then((L) => {
+      // Fix missing default marker icons in Next.js
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (L.Icon.Default.prototype as any)._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      })
+
+      // Centre on NT with zoom to fit all 4 cities
+      const map = L.map(mapRef.current!, {
+        center: [-18, 133],
+        zoom: 6,
+        zoomControl: true,
+        scrollWheelZoom: false,
+        attributionControl: true,
+      })
+
+      mapInstanceRef.current = map
+
+      // CartoDB Dark Matter tiles — matches the dark section design
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map)
+
+      // Draw route polyline
+      const routeCoords = stops.map((s) => [s.lat, s.lng] as [number, number])
+      L.polyline(routeCoords, {
+        color: '#ff4d94',
+        weight: 3,
+        opacity: 0.85,
+        dashArray: '10 6',
+      }).addTo(map)
+
+      // Custom markers
+      stops.forEach((stop) => {
+        const size = stop.isFinal ? 18 : 14
+        const icon = L.divIcon({
+          className: '',
+          html: `
+            <div style="
+              width:${size}px;height:${size}px;
+              background:${stop.color};
+              border:3px solid #fff;
+              border-radius:50%;
+              box-shadow:0 0 ${stop.isFinal ? 18 : 10}px ${stop.color};
+            "></div>
+          `,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+        })
+
+        const marker = L.marker([stop.lat, stop.lng], { icon })
+          .addTo(map)
+          .bindPopup(`
+            <div style="font-family:sans-serif;min-width:180px;padding:4px 2px">
+              <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${stop.color};margin-bottom:4px">${stop.tag}</div>
+              <div style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:2px">${stop.city}</div>
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:8px">${stop.region}</div>
+              <div style="font-size:0.8rem;color:rgba(255,255,255,0.75);line-height:1.55">${stop.desc}</div>
+            </div>
+          `, {
+            maxWidth: 240,
+            className: 'rm-popup',
+          })
+
+        // Open Darwin popup by default
+        if (stop.isFinal) marker.openPopup()
+      })
+
+      // Fit map to show all markers with padding
+      map.fitBounds(
+        stops.map((s) => [s.lat, s.lng] as [number, number]),
+        { padding: [40, 40] },
+      )
+    })
+
+    return () => {
+      if (mapInstanceRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(mapInstanceRef.current as any).remove()
+        mapInstanceRef.current = null
+      }
+    }
+  }, [])
+
   return (
     <section className="section roadmap section--dark" id="roadmap">
       <div className="roadmap-bg-glow" />
@@ -62,142 +159,9 @@ export default function Roadmap() {
           </p>
         </div>
 
-        {/* SVG Territory Map */}
+        {/* Real map */}
         <div className="rm-map-wrap">
-          <svg
-            viewBox="0 0 450 560"
-            xmlns="http://www.w3.org/2000/svg"
-            className="rm-map-svg"
-            aria-label="DHT journey map: Alice Springs to Darwin across the Northern Territory"
-          >
-            <defs>
-              <linearGradient id="rmRouteGrad" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#ff4d94" />
-                <stop offset="100%" stopColor="#ffd700" />
-              </linearGradient>
-              <filter id="rmGlow" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-              <filter id="rmSoftGlow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* NT territory silhouette */}
-            <path
-              d={ntOutline}
-              fill="rgba(255,255,255,0.04)"
-              stroke="rgba(255,255,255,0.14)"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-
-            {/* Route glow shadow */}
-            <path
-              d={routePath}
-              fill="none"
-              stroke="rgba(255,77,148,0.18)"
-              strokeWidth="10"
-              strokeLinecap="round"
-            />
-
-            {/* Route dashed line */}
-            <path
-              d={routePath}
-              fill="none"
-              stroke="url(#rmRouteGrad)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeDasharray="9 5"
-              filter="url(#rmSoftGlow)"
-            />
-
-            {/* Animated travelling dot */}
-            <circle r="5" fill="#ffffff" filter="url(#rmGlow)">
-              <animateMotion dur="7s" repeatCount="indefinite" path={routePath} />
-            </circle>
-
-            {/* Stop markers + labels */}
-            {stops.map((s) => (
-              <g key={s.city}>
-                {/* Darwin pulse rings */}
-                {s.isFinal && (
-                  <>
-                    <circle cx={s.cx} cy={s.cy} r="10" fill="none" stroke="#ffd700" strokeWidth="1.5">
-                      <animate attributeName="r" values="10;26" dur="2.2s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.7;0" dur="2.2s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx={s.cx} cy={s.cy} r="10" fill="none" stroke="#ffd700" strokeWidth="1">
-                      <animate attributeName="r" values="10;26" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.5;0" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
-                    </circle>
-                  </>
-                )}
-
-                {/* Outer dot */}
-                <circle
-                  cx={s.cx}
-                  cy={s.cy}
-                  r={s.isFinal ? 9 : 6}
-                  fill={s.isFinal ? '#ffd700' : '#ff4d94'}
-                  filter="url(#rmSoftGlow)"
-                />
-                {/* Inner white dot */}
-                <circle cx={s.cx} cy={s.cy} r={s.isFinal ? 4 : 2.5} fill="#fff" />
-
-                {/* City label */}
-                <text
-                  x={s.cx + 15}
-                  y={s.cy - 3}
-                  fill={s.isFinal ? '#ffd700' : '#ffffff'}
-                  fontSize="13"
-                  fontWeight="700"
-                  fontFamily="inherit"
-                >
-                  {s.city}
-                </text>
-                <text
-                  x={s.cx + 15}
-                  y={s.cy + 11}
-                  fill="rgba(255,255,255,0.5)"
-                  fontSize="10"
-                  fontFamily="inherit"
-                >
-                  {s.region}
-                </text>
-                <text
-                  x={s.cx + 15}
-                  y={s.cy + 24}
-                  fill={s.isFinal ? '#ffd700' : '#ff4d94'}
-                  fontSize="9"
-                  fontWeight="600"
-                  fontFamily="inherit"
-                >
-                  {s.tag}
-                </text>
-              </g>
-            ))}
-
-            {/* Footer note */}
-            <text
-              x="225"
-              y="548"
-              fill="rgba(255,255,255,0.25)"
-              fontSize="10"
-              textAnchor="middle"
-              fontFamily="inherit"
-            >
-              ≈ 3,000 km · Northern Territory, Australia
-            </text>
-          </svg>
+          <div ref={mapRef} className="rm-real-map" />
         </div>
 
         {/* Description cards */}

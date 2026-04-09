@@ -218,6 +218,52 @@ a:hover { color: var(--primary-hover); }
 .btn-lg   { padding: 16px 36px; font-size: 1.05rem; }
 .btn-full { width: 100%; }
 
+/* ---------- Floating Social Sidebar ---------- */
+.social-float {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 90;
+}
+.social-float::before,
+.social-float::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.15);
+}
+.social-float a {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(15,22,40,0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.55);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.social-float a svg { width: 15px; height: 15px; }
+.social-float a:hover {
+  background: rgba(255,77,148,0.15);
+  border-color: rgba(255,77,148,0.4);
+  color: #ff4d94;
+  transform: scale(1.12);
+}
+.social-float a.tiktok:hover { color: #fff; background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.3); }
+
+/* Hide on mobile — shows in the nav menu instead */
+@media (max-width: 900px) { .social-float { display: none; } }
+
 /* ---------- Navbar ---------- */
 .navbar {
   position: fixed;
@@ -2684,6 +2730,32 @@ a:hover { color: var(--primary-hover); }
     padding: 14px 24px;
   }
 
+  /* Social icons row inside mobile menu */
+  .nav-social-row {
+    display: flex !important;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 0 0 !important;
+    border-bottom: none !important;
+    width: 100%;
+  }
+  .nav-social-icon {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    color: rgba(255,255,255,0.6) !important;
+    font-size: inherit;
+    transition: all 0.2s !important;
+  }
+  .nav-social-icon svg { width: 18px; height: 18px; }
+  .nav-social-icon:hover { background: rgba(255,77,148,0.18) !important; color: #ff4d94 !important; border-color: rgba(255,77,148,0.35) !important; }
+
   /* Hamburger → X animation */
   .nav-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
   .nav-toggle.active span:nth-child(2) { opacity: 0; }
@@ -2797,19 +2869,44 @@ a:hover { color: var(--primary-hover); }
   overflow: visible;
 }
 
-/* SVG Territory Map */
+/* Real Leaflet Map */
 .rm-map-wrap {
-  display: flex;
-  justify-content: center;
   margin: 36px auto 8px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
 }
 
-.rm-map-svg {
+.rm-real-map {
   width: 100%;
-  max-width: 480px;
-  height: auto;
-  display: block;
+  height: 480px;
 }
+
+/* Leaflet popup dark theme */
+.rm-popup .leaflet-popup-content-wrapper {
+  background: #161f30;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  color: #fff;
+}
+.rm-popup .leaflet-popup-tip {
+  background: #161f30;
+}
+.rm-popup .leaflet-popup-close-button {
+  color: rgba(255,255,255,0.4) !important;
+}
+.rm-popup .leaflet-popup-close-button:hover {
+  color: #fff !important;
+}
+
+/* Leaflet attribution override for dark bg */
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.5) !important;
+  color: rgba(255,255,255,0.4) !important;
+}
+.leaflet-control-attribution a { color: rgba(255,255,255,0.5) !important; }
 
 .rm-card-city {
   font-size: 0.95rem;
@@ -2942,11 +3039,8 @@ a:hover { color: var(--primary-hover); }
   .rm-mobile       { display: none; }
 }
 
-/* On mobile, keep the 4-column map layout identical to desktop.
-   Allow horizontal scroll on very small screens so nothing wraps. */
 @media (max-width: 600px) {
-  .rm-map-wrap     { margin: 24px auto 8px; overflow-x: auto; }
-  .rm-map-svg      { min-width: 340px; max-width: 100%; }
+  .rm-real-map     { height: 340px; }
   .rm-cards-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
   .rm-cards        { min-width: 560px; }
 }

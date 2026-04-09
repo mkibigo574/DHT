@@ -583,25 +583,96 @@
   font-size: 0.875rem;
 }
 
+/* ===== SIDEBAR OVERLAY BACKDROP ===== */
+.admin-root .sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .admin-root .sidebar {
     transform: translateX(-100%);
+    z-index: 110;
   }
   .admin-root .sidebar.open {
     transform: translateX(0);
   }
-  .admin-root .mobile-header { display: flex; }
-  .admin-root .main-content { margin-left: 0; padding: 80px 18px 32px; }
+  .admin-root .sidebar-backdrop { display: block; }
+  .admin-root .mobile-header { display: flex; z-index: 105; }
+  .admin-root .main-content { margin-left: 0; padding: 72px 16px 40px; }
   .admin-root .form-row-2 { grid-template-columns: 1fr; }
   .admin-root .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-root .overview-grid { grid-template-columns: 1fr; }
+
+  /* Page header stack on tablet */
+  .admin-root .page-header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 18px; }
+  .admin-root .page-header h1 { font-size: 1.3rem; }
+  .admin-root .page-actions { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
+  .admin-root .page-actions button, .admin-root .page-actions .btn-primary-action { flex: 1; justify-content: center; min-width: 100px; }
+
+  /* Table controls full-width */
+  .admin-root .table-controls { flex-direction: column; }
+  .admin-root .table-search { min-width: unset; width: 100%; }
+  .admin-root .table-filter { width: 100%; }
+
+  /* Table scroll affordance */
+  .admin-root .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-root .table-wrap::after {
+    content: '';
+    display: block;
+    height: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-root .main-content { padding: 68px 12px 32px; }
+
+  /* Stats → 2 compact cols */
+  .admin-root .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .admin-root .stat-card { padding: 14px 12px; gap: 10px; }
+  .admin-root .stat-icon { width: 36px; height: 36px; }
+  .admin-root .stat-icon svg { width: 17px; height: 17px; }
+  .admin-root .stat-value { font-size: 1.35rem; }
+  .admin-root .stat-label { font-size: 0.7rem; }
+
+  /* Overview cards compact */
+  .admin-root .overview-card { padding: 16px 14px; }
+
+  /* Table — hide lowest-priority columns */
+  .admin-root .data-table .col-hide-sm { display: none; }
+  .admin-root .data-table td, .admin-root .data-table th { padding: 10px 10px; font-size: 0.78rem; }
+
+  /* Donation summary */
+  .admin-root .donation-summary { gap: 10px; }
+  .admin-root .donation-sum-item { padding: 14px 16px; }
+  .admin-root .donation-sum-value { font-size: 1.25rem; }
 }
 
 @media (max-width: 480px) {
-  .admin-root .login-card { padding: 32px 22px; }
-  .admin-root .stats-grid { grid-template-columns: 1fr; }
+  .admin-root .login-card { padding: 28px 18px; }
+  .admin-root .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-root .donation-summary { flex-direction: column; }
+
+  /* Mobile header compact */
+  .admin-root .mobile-header { padding: 0 12px; }
+  .admin-root .mobile-title { font-size: 0.9rem; }
+
+  /* Table font smaller */
+  .admin-root .data-table td, .admin-root .data-table th { padding: 9px 8px; font-size: 0.75rem; }
+  .admin-root .data-table .cell-truncate { max-width: 120px; }
+
+  /* Chips smaller */
+  .admin-root .chip { font-size: 0.65rem; padding: 2px 7px; }
+
+  /* Status select compact */
+  .admin-root .status-select { font-size: 0.72rem; padding: 3px 6px; }
 
   /* Modal → bottom sheet on mobile */
   .admin-root .modal-overlay {
