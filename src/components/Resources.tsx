@@ -43,6 +43,7 @@ function RequestModal({ resource, onClose }: { resource: Resource; onClose: () =
   return (
     <div className="aud-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="aud-modal req-modal" role="dialog" aria-modal="true">
+        <div className="aud-drag-handle" aria-hidden="true" />
         <div className="aud-modal-header">
           <div className="aud-header-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -208,6 +209,7 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
     <div className="aud-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="aud-modal" role="dialog" aria-modal="true">
 
+        <div className="aud-drag-handle" aria-hidden="true" />
         {/* Branded header */}
         <div className="aud-modal-header">
           <div className="aud-header-icon">

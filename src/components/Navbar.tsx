@@ -12,6 +12,12 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
+
   const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
     e.preventDefault()
     setMenuOpen(false)

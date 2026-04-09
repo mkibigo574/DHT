@@ -602,4 +602,28 @@
   .admin-root .login-card { padding: 32px 22px; }
   .admin-root .stats-grid { grid-template-columns: 1fr; }
   .admin-root .donation-summary { flex-direction: column; }
+
+  /* Modal → bottom sheet on mobile */
+  .admin-root .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .admin-root .modal {
+    border-radius: 18px 18px 0 0;
+    max-width: 100%;
+    max-height: 90dvh;
+    overflow-y: auto;
+  }
+  .admin-root .modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+  .admin-root .modal-header { padding: 14px 18px; }
+  .admin-root .modal form { padding: 16px 18px; }
+  .admin-root .modal-footer { padding-top: 14px; margin-top: 14px; }
 }

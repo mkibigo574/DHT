@@ -295,18 +295,24 @@ a:hover { color: var(--primary-hover); }
   display: none;
   flex-direction: column;
   gap: 5px;
-  background: none;
-  border: none;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
   cursor: pointer;
-  padding: 4px;
-  z-index: 10;
+  padding: 9px 10px;
+  z-index: 1100;
+  transition: background var(--transition), border-color var(--transition);
 }
 .nav-toggle span {
-  width: 24px; height: 2px;
+  width: 22px; height: 2px;
   background: #fff;
   border-radius: 2px;
   transition: all var(--transition);
   display: block;
+}
+.navbar.scrolled .nav-toggle {
+  background: rgba(30,40,70,0.08);
+  border-color: rgba(30,40,70,0.15);
 }
 .navbar.scrolled .nav-toggle span { background: var(--secondary); }
 
@@ -2280,7 +2286,7 @@ a:hover { color: var(--primary-hover); }
 .aud-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10,14,26,0.75);
+  background: rgba(10,14,26,0.78);
   backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex;
@@ -2296,6 +2302,49 @@ a:hover { color: var(--primary-hover); }
   max-width: 620px;
   max-height: 92vh;
   overflow-y: auto;
+}
+
+/* Drag handle pill (hidden on desktop, visible on mobile) */
+.aud-drag-handle {
+  display: none;
+}
+
+@media (max-width: 540px) {
+  /* All public modals slide up as bottom sheets */
+  .aud-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .aud-modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92dvh;
+    max-width: 100%;
+  }
+  /* Drag handle pill */
+  .aud-drag-handle {
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+  .aud-modal-header {
+    padding: 14px 16px 14px;
+    border-radius: 20px 20px 0 0;
+    gap: 10px;
+  }
+  .aud-header-icon { width: 36px; height: 36px; }
+  .aud-header-text h2 { font-size: 1rem; }
+  .aud-section { padding: 16px 16px; gap: 10px; }
+  .aud-form-footer { padding: 14px 16px; }
+  .aud-success { padding: 32px 18px 28px; }
+  /* Stack 2-col form rows to single col */
+  .aud-section .form-row-2 { grid-template-columns: 1fr; }
+  /* Request doc modal */
+  .req-modal-intro { font-size: 0.85rem; }
+  .req-modal .aud-form { padding: 16px 16px 0; }
+  .req-modal .form-group { margin-bottom: 10px; }
 }
 /* Branded gradient header */
 .aud-modal-header {
@@ -2578,27 +2627,69 @@ a:hover { color: var(--primary-hover); }
 
 @media (max-width: 768px) {
   .section { padding: 72px 0; }
+
+  /* Always give the navbar a visible background on mobile */
+  .navbar {
+    background: rgba(10,14,26,0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 12px 0;
+  }
+  .navbar.scrolled {
+    background: rgba(255,255,255,0.96);
+  }
+
   .nav-toggle { display: flex; }
+
+  /* Full-screen overlay menu */
   .nav-links {
     position: fixed;
-    top: 0; right: -100%;
-    width: 280px; height: 100vh;
-    background: rgba(22,32,58,0.98);
-    backdrop-filter: blur(20px);
+    inset: 0;
+    background: rgba(8,12,24,0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 18px;
-    padding: 40px;
-    transition: right var(--transition);
-    box-shadow: -4px 0 40px rgba(0,0,0,0.4);
-    z-index: 5;
+    gap: 10px;
+    padding: 80px 32px 48px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 1050;
   }
-  .nav-links.open { right: 0; }
-  .nav-links a { color: rgba(255,255,255,0.7) !important; font-size: 1rem; }
+  .nav-links.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .nav-links li { width: 100%; text-align: center; }
+  .nav-links a {
+    color: rgba(255,255,255,0.75) !important;
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    display: block;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    transition: color 0.2s;
+  }
+  .nav-links li:last-child a { border-bottom: none; }
   .nav-links a:hover { color: #fff !important; }
+  .nav-links .btn-nav {
+    margin-top: 12px;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    font-size: 1rem !important;
+    padding: 14px 24px;
+  }
+
+  /* Hamburger → X animation */
   .nav-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
   .nav-toggle.active span:nth-child(2) { opacity: 0; }
   .nav-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+  /* Keep spans white even on scrolled navbar when menu is open */
+  .nav-toggle.active span { background: #fff !important; }
   .navbar.scrolled .nav-toggle span { background: var(--secondary); }
   .hero { min-height: 100vh; padding-top: 74px; padding-bottom: 48px; }
   .hero-layout { gap: 16px; }
