@@ -201,14 +201,16 @@ export default function Roadmap() {
         </div>
 
         {/* Description cards */}
-        <div className="rm-cards">
-          {stops.map((s) => (
-            <div key={s.city} className={`rm-card${s.isFinal ? ' rm-card--final' : ''}`}>
-              <div className="rm-card-city">{s.city}</div>
-              <span className={`tc-tag${s.isFinal ? ' final-tag' : ''}`}>{s.tag}</span>
-              <p>{s.desc}</p>
-            </div>
-          ))}
+        <div className="rm-cards-scroll">
+          <div className="rm-cards">
+            {stops.map((s) => (
+              <div key={s.city} className={`rm-card${s.isFinal ? ' rm-card--final' : ''}`}>
+                <div className="rm-card-city">{s.city}</div>
+                <span className={`tc-tag${s.isFinal ? ' final-tag' : ''}`}>{s.tag}</span>
+                <p>{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

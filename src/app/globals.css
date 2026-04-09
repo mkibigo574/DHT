@@ -2826,16 +2826,13 @@ a:hover { color: var(--primary-hover); }
 @media (max-width: 860px) {
   .rm-scene        { display: none; }
   .rm-mobile       { display: none; }
-  /* Collapse description cards to 2-col on tablet */
-  .rm-cards        { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 540px) {
-  /* Single-col description cards on phone */
-  .rm-cards        { grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
-  .rm-map-svg      { max-width: 100%; }
-  .rm-city-name    { font-size: 1.2rem; }
-  .rm-city-desc    { font-size: 0.82rem; }
-  .tc-region       { font-size: 0.6rem; }
-  .tc-tag          { font-size: 0.58rem; padding: 2px 8px; }
+/* On mobile, keep the 4-column map layout identical to desktop.
+   Allow horizontal scroll on very small screens so nothing wraps. */
+@media (max-width: 600px) {
+  .rm-map-wrap     { margin: 24px auto 8px; overflow-x: auto; }
+  .rm-map-svg      { min-width: 340px; max-width: 100%; }
+  .rm-cards-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+  .rm-cards        { min-width: 560px; }
 }
