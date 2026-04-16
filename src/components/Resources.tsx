@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-type ResourceType = 'form' | 'download'
+type ResourceType = 'form' | 'download' | 'sponsor'
 
 interface Resource {
   type: ResourceType
@@ -12,6 +12,125 @@ interface Resource {
   file?: string
   subject?: string
   icon: React.ReactNode
+}
+
+// ── Sponsor Enquiry Modal ─────────────────────────────────────
+function SponsorModal({ onClose }: { onClose: () => void }) {
+  const [form, setForm] = useState({ org_name: '', contact_name: '', email: '', interest: '' })
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  function set(field: string, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setStatus('loading')
+    setErrorMsg('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.contact_name,
+          email: form.email,
+          message: `Organisation: ${form.org_name}\nLevel of Interest: ${form.interest}`,
+          subject: 'Sponsorship Enquiry',
+        }),
+      })
+      const data = await res.json() as { ok: boolean; error?: string }
+      if (!data.ok) throw new Error(data.error ?? 'Submission failed')
+      setStatus('success')
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="aud-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="aud-modal req-modal" role="dialog" aria-modal="true">
+        <div className="aud-drag-handle" aria-hidden="true" />
+        <div className="aud-modal-header">
+          <div className="aud-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <div className="aud-header-text">
+            <h2>Partner Enquiry</h2>
+            <p>Darwin Has Talent · 2027 Season</p>
+          </div>
+          <button className="aud-close" onClick={onClose} aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {status === 'success' ? (
+          <div className="aud-success">
+            <div className="aud-success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <h3>Enquiry Received!</h3>
+            <p>Thanks for your interest in partnering with Darwin Has Talent. We&apos;ll be in touch within 48 hours.</p>
+            <button className="btn btn-primary" onClick={onClose}>Close</button>
+          </div>
+        ) : (
+          <form className="aud-form" onSubmit={handleSubmit} noValidate>
+            <p className="req-modal-intro">Tell us about your organisation and we&apos;ll reach out to discuss partnership opportunities.</p>
+            <div className="form-group">
+              <label>Organisation Name <span className="req">*</span></label>
+              <input type="text" required placeholder="e.g. Acme Corporation" value={form.org_name} onChange={(e) => set('org_name', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Your Name <span className="req">*</span></label>
+              <input type="text" required placeholder="Full name" value={form.contact_name} onChange={(e) => set('contact_name', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Email Address <span className="req">*</span></label>
+              <input type="email" required placeholder="your@organisation.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Level of Interest <span className="req">*</span></label>
+              <select required value={form.interest} onChange={(e) => set('interest', e.target.value)}>
+                <option value="">Select sponsorship level</option>
+                <option>Lead Sponsor (Platinum Naming Rights)</option>
+                <option>Regional Hub Sponsor</option>
+                <option>Prize Partner</option>
+                <option>In-Kind (Travel / Technical)</option>
+                <option>General Enquiry</option>
+              </select>
+            </div>
+            {status === 'error' && <p className="aud-error">{errorMsg}</p>}
+            <div className="aud-form-footer">
+              <button type="submit" className="btn btn-primary aud-submit" disabled={status === 'loading'}>
+                {status === 'loading' ? (
+                  <><span className="donate-spinner" aria-hidden="true" /> Sending…</>
+                ) : (
+                  <>
+                    Send Enquiry
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15" style={{ marginLeft: 6 }}>
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // ── Request-by-email modal ────────────────────────────────────
@@ -126,11 +245,11 @@ const resources: Resource[] = [
     ),
   },
   {
-    type: 'download',
+    type: 'sponsor',
     title: 'Sponsorship Prospectus',
     desc: 'Download the official 2026/27 Partnership Prospectus for potential sponsors and partners.',
     cta: 'Download PDF',
-    file: '/docs/sponsorship-prospectus.pdf',
+    file: '/docs/Darwin_Has_Talent_2027_Sponsorship_Prospectus.pdf',
     subject: 'Sponsorship Prospectus Request',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -371,11 +490,13 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
 export default function Resources() {
   const [modalOpen, setModalOpen] = useState(false)
   const [requestResource, setRequestResource] = useState<Resource | null>(null)
+  const [sponsorOpen, setSponsorOpen] = useState(false)
 
   return (
     <section className="section resources section--white" id="resources">
       {modalOpen && <AuditionModal onClose={() => setModalOpen(false)} />}
       {requestResource && <RequestModal resource={requestResource} onClose={() => setRequestResource(null)} />}
+      {sponsorOpen && <SponsorModal onClose={() => setSponsorOpen(false)} />}
 
       <div className="container">
         <div className="section-header">
@@ -398,6 +519,24 @@ export default function Resources() {
                   <button className="btn btn-primary resource-btn" onClick={() => setModalOpen(true)}>
                     {r.cta} &rarr;
                   </button>
+                ) : r.type === 'sponsor' ? (
+                  <div className="resource-download-group">
+                    <a href={r.file} download className="btn btn-primary resource-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" style={{ marginRight: 6 }}>
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      {r.cta}
+                    </a>
+                    <button
+                      type="button"
+                      className="resource-email-link"
+                      onClick={() => setSponsorOpen(true)}
+                    >
+                      Partner enquiry &rarr;
+                    </button>
+                  </div>
                 ) : (
                   <div className="resource-download-group">
                     <a href={r.file} download className="btn btn-primary resource-btn">
