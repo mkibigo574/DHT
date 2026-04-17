@@ -101,13 +101,13 @@ export default function Contact() {
                 <p>23 372 902 339</p>
               </div>
             </div>
-            <div className="contact-info-card light-info-card">
+            {/* <div className="contact-info-card light-info-card">
               <div className="cic-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3.11 4.18 2 2 0 0 1 5.1 2h3a2 2 0 0 1 2 1.72c.12.9.37 1.77.72 2.58a2 2 0 0 1-.45 2.11L9 9a16 16 0 0 0 6 6l.59-.37a2 2 0 0 1 2.11-.45c.81.35 1.68.6 2.58.72A2 2 0 0 1 22 16.92z" />
                 </svg>
               </div>
-              {/* <div>
+              <div>
                 <h4>Contact</h4>
                 <p><a href="tel:0416941973">0416 941 973</a></p> 
               </div> */}
