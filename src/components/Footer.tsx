@@ -69,6 +69,16 @@ export default function Footer() {
             {/* &nbsp;&bull;&nbsp; <a href="tel:0416941973">0416 941 973</a> */}
           </p>
           <p>&copy; 2026 Darwin Has Talent. All rights reserved.</p>
+
+          <p>
+          Developed by{" "}
+          <a href="https://michaelkibigo.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+              Michael
+          </a>
+          </p>
         </div>
       </div>
     </footer>
