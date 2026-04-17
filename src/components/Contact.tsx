@@ -110,8 +110,8 @@ export default function Contact() {
               <div>
                 <h4>Contact</h4>
                 <p><a href="tel:0416941973">0416 941 973</a></p> 
-              </div> */}
-            </div>
+              </div> 
+            </div> */}
             <div className="contact-info-card light-info-card">
               <div className="cic-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
