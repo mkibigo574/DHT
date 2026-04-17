@@ -109,7 +109,7 @@ export default function Contact() {
               </div>
               {/* <div>
                 <h4>Contact</h4>
-                {/* <p><a href="tel:0416941973">0416 941 973</a></p> */}
+                <p><a href="tel:0416941973">0416 941 973</a></p> 
               </div> */}
             </div>
             <div className="contact-info-card light-info-card">
