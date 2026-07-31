@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import DonatePaymentForm from './DonatePaymentForm'
 
 const GOAL = 50_000
 
@@ -112,8 +113,8 @@ function fmt(n: number) {
 export default function Donate() {
   const [selected, setSelected] = useState(25)
   const [custom, setCustom] = useState('')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [paying, setPaying] = useState(false)
   const [raised, setRaised] = useState<number | null>(null)
   const [bankOpen, setBankOpen] = useState(false)
 
@@ -130,27 +131,10 @@ export default function Donate() {
   const progress = raised !== null ? Math.min(100, (raised / GOAL) * 100) : 0
   const displayAmt = effectiveDols % 1 === 0 ? `$${effectiveDols}` : `$${effectiveDols.toFixed(2)}`
 
-  async function handleDonate() {
+  function handleContinue() {
     setError('')
     if (amountCents < 100) { setError('Minimum donation is $1.'); return }
-    setLoading(true)
-    try {
-      const res = await fetch('/api/donate/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amountCents }),
-      })
-      const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        setError(data.error ?? 'Something went wrong. Please try again.')
-      }
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    setPaying(true)
   }
 
   return (
@@ -196,65 +180,74 @@ export default function Donate() {
 
           {/* LEFT: form */}
           <div className="donate-form-col glass-card">
-            <h3 className="donate-form-heading">Choose Your Impact</h3>
+            {!paying ? (
+              <>
+                <h3 className="donate-form-heading">Choose Your Impact</h3>
 
-            <div className="donate-presets">
-              {PRESETS.map((p) => (
+                <div className="donate-presets">
+                  {PRESETS.map((p) => (
+                    <button
+                      key={p.amount}
+                      type="button"
+                      className={`donate-preset${!custom && selected === p.amount ? ' active' : ''}`}
+                      onClick={() => { setSelected(p.amount); setCustom(''); setError('') }}
+                    >
+                      <span className="dp-icon" aria-hidden="true">{p.icon}</span>
+                      <span className="dp-body">
+                        <span className="dp-label">{p.label}</span>
+                        <span className="dp-sub">{p.sub}</span>
+                      </span>
+                      <span className="dp-price">${p.amount}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="donate-custom-wrap">
+                  <span className="donate-custom-symbol">$</span>
+                  <input
+                    type="number"
+                    className="donate-custom-input"
+                    placeholder="Or enter your own amount"
+                    min="1"
+                    step="1"
+                    value={custom}
+                    onChange={(e) => { setCustom(e.target.value); setError('') }}
+                  />
+                </div>
+
+                {error && <p className="donate-error" role="alert">{error}</p>}
+
                 <button
-                  key={p.amount}
                   type="button"
-                  className={`donate-preset${!custom && selected === p.amount ? ' active' : ''}`}
-                  onClick={() => { setSelected(p.amount); setCustom(''); setError('') }}
+                  className="btn btn-primary donate-cta-btn"
+                  onClick={handleContinue}
                 >
-                  <span className="dp-icon" aria-hidden="true">{p.icon}</span>
-                  <span className="dp-body">
-                    <span className="dp-label">{p.label}</span>
-                    <span className="dp-sub">{p.sub}</span>
-                  </span>
-                  <span className="dp-price">${p.amount}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="donate-custom-wrap">
-              <span className="donate-custom-symbol">$</span>
-              <input
-                type="number"
-                className="donate-custom-input"
-                placeholder="Or enter your own amount"
-                min="1"
-                step="1"
-                value={custom}
-                onChange={(e) => { setCustom(e.target.value); setError('') }}
-              />
-            </div>
-
-            {error && <p className="donate-error" role="alert">{error}</p>}
-
-            <button
-              type="button"
-              className="btn btn-primary donate-cta-btn"
-              onClick={handleDonate}
-              disabled={loading}
-            >
-              {loading ? (
-                <><span className="donate-spinner" aria-hidden="true" /> Redirecting to Stripe…</>
-              ) : (
-                <>
-                  Donate {displayAmt} to DHT
+                  Continue to Payment
                   <svg viewBox="0 0 20 20" fill="currentColor" width="16" aria-hidden="true" style={{ marginLeft: 6, flexShrink: 0 }}>
                     <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                </>
-              )}
-            </button>
+                </button>
 
-            <div className="donate-trust-row">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="12" aria-hidden="true">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              <span>256-bit SSL · Powered by Stripe</span>
-            </div>
+                <div className="donate-trust-row">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="12" aria-hidden="true">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>256-bit SSL · Powered by Stripe</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="donate-pay-summary">
+                  <span className="donate-pay-summary-label">You&apos;re donating</span>
+                  <span className="donate-pay-summary-amt">{displayAmt}</span>
+                </div>
+                <DonatePaymentForm
+                  amountCents={amountCents}
+                  displayAmt={displayAmt}
+                  onBack={() => setPaying(false)}
+                />
+              </>
+            )}
           </div>
 
           {/* RIGHT: impact + sponsorship */}

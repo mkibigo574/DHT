@@ -24,10 +24,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-
-    // Record in Supabase donations table
+  // Record the completed donation in Supabase.
+  async function recordDonation(donorName: string | null, cents: number, notes: string) {
     await fetch(`${SB_URL}/rest/v1/donations`, {
       method: 'POST',
       headers: {
@@ -36,12 +34,32 @@ export async function POST(req: NextRequest) {
         Prefer: 'return=minimal',
       },
       body: JSON.stringify({
-        donor_name: session.customer_details?.name ?? null,
-        amount: (session.amount_total ?? 0) / 100,
+        donor_name: donorName,
+        amount: cents / 100,
         method: 'stripe',
-        notes: `Stripe session ${session.id}`,
+        notes,
       }),
     }).catch(() => {}) // non-fatal — payment still succeeded
+  }
+
+  // On-site donations pay via a PaymentIntent (Payment Element).
+  if (event.type === 'payment_intent.succeeded') {
+    const pi = event.data.object as Stripe.PaymentIntent
+    await recordDonation(
+      pi.metadata?.donor_name ?? null,
+      pi.amount_received || pi.amount,
+      `Stripe payment ${pi.id}`,
+    )
+  }
+
+  // Legacy hosted-checkout donations (kept for backward compatibility).
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session
+    await recordDonation(
+      session.customer_details?.name ?? null,
+      session.amount_total ?? 0,
+      `Stripe session ${session.id}`,
+    )
   }
 
   return NextResponse.json({ received: true })

@@ -7,18 +7,31 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 export default async function DonateSuccess({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id?: string }>
+  searchParams: Promise<{ payment_intent?: string; session_id?: string }>
 }) {
-  const { session_id } = await searchParams
+  const { payment_intent, session_id } = await searchParams
 
   let amountDisplay = ''
   let donorFirst = ''
 
-  if (session_id) {
+  const fmtAmount = (cents: number) =>
+    `$${(cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2 })}`
+
+  if (payment_intent) {
+    // On-site donations (Payment Element) return a PaymentIntent id.
+    try {
+      const pi = await stripe.paymentIntents.retrieve(payment_intent)
+      amountDisplay = fmtAmount(pi.amount_received || pi.amount)
+      const fullName = pi.metadata?.donor_name ?? ''
+      donorFirst = fullName.split(' ')[0]
+    } catch {
+      // Non-fatal — still show the page
+    }
+  } else if (session_id) {
+    // Legacy hosted-checkout donations.
     try {
       const session = await stripe.checkout.sessions.retrieve(session_id)
-      const cents = session.amount_total ?? 0
-      amountDisplay = `$${(cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2 })}`
+      amountDisplay = fmtAmount(session.amount_total ?? 0)
       const fullName = session.customer_details?.name ?? ''
       donorFirst = fullName.split(' ')[0]
     } catch {
