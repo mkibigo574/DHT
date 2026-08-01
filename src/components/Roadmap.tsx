@@ -51,9 +51,18 @@ export default function Roadmap() {
   const mapInstanceRef = useRef<unknown>(null)
 
   useEffect(() => {
-    if (mapInstanceRef.current || !mapRef.current) return
+    if (!mapRef.current) return
+
+    // The map is created asynchronously, so a synchronous ref check can't stop a
+    // second effect run (React mounts twice in development) from getting past the
+    // guard before the first import resolves and initialising the same container
+    // twice. Track cancellation instead.
+    let cancelled = false
 
     import('leaflet').then((L) => {
+      const container = mapRef.current
+      if (cancelled || !container || mapInstanceRef.current) return
+
       // Fix missing default marker icons in Next.js
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -64,7 +73,7 @@ export default function Roadmap() {
       })
 
       // Centre on NT with zoom to fit all 4 cities
-      const map = L.map(mapRef.current!, {
+      const map = L.map(container, {
         center: [-18, 133],
         zoom: 6,
         zoomControl: true,
@@ -134,6 +143,10 @@ export default function Roadmap() {
     })
 
     return () => {
+      // Stops a still-pending import from initialising a container that is on
+      // its way out; if the map already exists, remove() frees the container so
+      // the next mount can reuse it.
+      cancelled = true
       if (mapInstanceRef.current) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ;(mapInstanceRef.current as any).remove()
