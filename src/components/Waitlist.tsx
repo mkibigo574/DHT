@@ -1,5 +1,6 @@
 'use client'
 import { useState, FormEvent } from 'react'
+import AnimateIn from './AnimateIn'
 
 export default function Waitlist() {
   const [submitted, setSubmitted] = useState(false)
@@ -51,6 +52,7 @@ export default function Waitlist() {
     <section className="section waitlist section--bg" id="waitlist">
       <div className="container">
         <div className="waitlist-wrapper">
+          <AnimateIn variant="left" threshold={0.06}>
           <div className="waitlist-intro">
             <div className="wh-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -81,7 +83,9 @@ export default function Waitlist() {
             </ul>
             <p className="form-disclaimer">We respect your privacy. Unsubscribe at any time.</p>
           </div>
+          </AnimateIn>
 
+          <AnimateIn variant="right" delay={120} threshold={0.06}>
           <div className="gform-container">
             {submitted ? (
               <div className="cgf-success">
@@ -177,6 +181,7 @@ export default function Waitlist() {
               </form>
             )}
           </div>
+          </AnimateIn>
         </div>
       </div>
     </section>

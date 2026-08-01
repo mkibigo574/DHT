@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import AnimateIn from './AnimateIn'
 
 const stops = [
   {
@@ -146,33 +147,39 @@ export default function Roadmap() {
       <div className="roadmap-bg-glow" />
 
       <div className="container">
-        <div className="section-header on-dark">
-          <p className="section-tag">The Journey</p>
-          <h2 className="section-title" style={{ color: '#fff' }}>
-            4 Regions. 3,000 Kilometres.
-            <br />
-            <span className="gradient-text">One Grand Finale.</span>
-          </h2>
-          <p className="section-subtitle" style={{ color: 'var(--text-muted-dark)' }}>
-            From the Red Centre to the Top End — we&apos;re bringing the stage to every corner of
-            the Territory.
-          </p>
-        </div>
+        <AnimateIn variant="up">
+          <div className="section-header on-dark">
+            <p className="section-tag">The Journey</p>
+            <h2 className="section-title" style={{ color: '#fff' }}>
+              4 Regions. 3,000 Kilometres.
+              <br />
+              <span className="gradient-text">One Grand Finale.</span>
+            </h2>
+            <p className="section-subtitle" style={{ color: 'var(--text-muted-dark)' }}>
+              From the Red Centre to the Top End — we&apos;re bringing the stage to every corner of
+              the Territory.
+            </p>
+          </div>
+        </AnimateIn>
 
         {/* Real map */}
-        <div className="rm-map-wrap">
-          <div ref={mapRef} className="rm-real-map" />
-        </div>
+        <AnimateIn variant="scale" delay={100}>
+          <div className="rm-map-wrap">
+            <div ref={mapRef} className="rm-real-map" />
+          </div>
+        </AnimateIn>
 
         {/* Description cards */}
         <div className="rm-cards-scroll">
           <div className="rm-cards">
-            {stops.map((s) => (
-              <div key={s.city} className={`rm-card${s.isFinal ? ' rm-card--final' : ''}`}>
-                <div className="rm-card-city">{s.city}</div>
-                <span className={`tc-tag${s.isFinal ? ' final-tag' : ''}`}>{s.tag}</span>
-                <p>{s.desc}</p>
-              </div>
+            {stops.map((s, i) => (
+              <AnimateIn key={s.city} variant="up" delay={i * 90}>
+                <div className={`rm-card${s.isFinal ? ' rm-card--final' : ''}`}>
+                  <div className="rm-card-city">{s.city}</div>
+                  <span className={`tc-tag${s.isFinal ? ' final-tag' : ''}`}>{s.tag}</span>
+                  <p>{s.desc}</p>
+                </div>
+              </AnimateIn>
             ))}
           </div>
         </div>

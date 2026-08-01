@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AnimateIn from './AnimateIn'
 
 type ResourceType = 'form' | 'download' | 'sponsor'
 
@@ -499,17 +500,20 @@ export default function Resources() {
       {sponsorOpen && <SponsorModal onClose={() => setSponsorOpen(false)} />}
 
       <div className="container">
-        <div className="section-header">
-          <p className="section-tag">Forms &amp; Documents</p>
-          <h2 className="section-title">Everything You Need</h2>
-          <p className="section-subtitle">
-            Apply to audition, download official documents, and access all DHT materials in one place.
-          </p>
-        </div>
+        <AnimateIn variant="up">
+          <div className="section-header">
+            <p className="section-tag">Forms &amp; Documents</p>
+            <h2 className="section-title">Everything You Need</h2>
+            <p className="section-subtitle">
+              Apply to audition, download official documents, and access all DHT materials in one place.
+            </p>
+          </div>
+        </AnimateIn>
 
         <div className="resources-grid">
-          {resources.map((r) => (
-            <div key={r.title} className="resource-card">
+          {resources.map((r, i) => (
+            <AnimateIn key={r.title} variant="up" delay={i * 80}>
+            <div className="resource-card">
               <div className="resource-icon">{r.icon}</div>
               <div className="resource-content">
                 <h3>{r.title}</h3>
@@ -558,6 +562,7 @@ export default function Resources() {
                 )}
               </div>
             </div>
+            </AnimateIn>
           ))}
         </div>
 

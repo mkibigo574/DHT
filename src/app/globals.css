@@ -3102,3 +3102,291 @@ a:hover { color: var(--primary-hover); }
   .rm-cards-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
   .rm-cards        { min-width: 560px; }
 }
+
+/* ====================================================
+   PREMIUM ANIMATION SYSTEM
+   ==================================================== */
+
+/* ── AnimateIn grid/flex helpers ───────────────────── */
+/* When .ai-root is a grid/flex child, inner cards must fill it */
+.resources-grid > .ai-root,
+.pillars-grid   > .ai-root,
+.portals-grid   > .ai-root,
+.rm-cards       > .ai-root,
+.donate-main-grid > .ai-root {
+  display: flex;
+  flex-direction: column;
+}
+.resources-grid > .ai-root > .resource-card,
+.pillars-grid   > .ai-root > .pillar-card,
+.portals-grid   > .ai-root > .portal-card,
+.rm-cards       > .ai-root > .rm-card {
+  flex: 1;
+  height: 100%;
+}
+
+/* ── AnimateIn base states ─────────────────────────── */
+.ai-root {
+  opacity: 0;
+  will-change: transform, opacity, filter;
+  transition-property: opacity, transform, filter;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-duration: var(--ai-dur, 750ms);
+  transition-delay: var(--ai-delay, 0ms);
+}
+.ai-up      { transform: translateY(52px); }
+.ai-left    { transform: translateX(-52px); }
+.ai-right   { transform: translateX(52px); }
+.ai-scale   { transform: scale(0.88); }
+.ai-fade    { /* opacity only */ }
+.ai-blur-up { transform: translateY(32px); filter: blur(10px); }
+
+.ai-root.ai-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ── Shimmer text ──────────────────────────────────── */
+.hero-title-accent {
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    var(--accent)  35%,
+    #fff6f0        55%,
+    var(--accent)  70%,
+    var(--primary) 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 4s linear infinite;
+}
+@keyframes shimmerText {
+  0%   { background-position: 250% center; }
+  100% { background-position: -250% center; }
+}
+
+/* gradient-text shimmer (used in Roadmap, Donate headings) */
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    var(--accent)  40%,
+    #ffcdc7        60%,
+    var(--primary) 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 5s linear infinite;
+}
+
+/* ── Hero particles ────────────────────────────────── */
+.hero-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 107, 107, 0.55);
+  pointer-events: none;
+  animation: particleFloat var(--p-dur, 9s) ease-in-out infinite;
+  animation-delay: var(--p-delay, 0s);
+  z-index: 2;
+}
+@keyframes particleFloat {
+  0%        { opacity: 0; transform: translate(0, 0) scale(1); }
+  8%        { opacity: 0.7; }
+  50%       { transform: translate(var(--p-tx, 40px), var(--p-ty, -70px)) scale(0.4); opacity: 0.4; }
+  92%       { opacity: 0; }
+  100%      { opacity: 0; transform: translate(var(--p-tx, 40px), var(--p-ty, -70px)) scale(0); }
+}
+
+/* ── Magnetic button ───────────────────────────────── */
+.btn {
+  transition: background 0.22s ease, border-color 0.22s ease,
+              color 0.22s ease, box-shadow 0.22s ease,
+              transform 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+/* Light sweep on hover */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+}
+.btn:hover::before { transform: translateX(120%); }
+
+/* Click ripple */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(0);
+  animation: rippleAnim 0.55s linear;
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(1); opacity: 0; }
+}
+
+/* ── 3-D card tilt — smooth base transition ────────── */
+.pillar-card,
+.portal-card,
+.resource-card,
+.rm-card,
+.glass-card,
+.contact-info-card,
+.donate-preset {
+  transition: transform 0.12s ease-out, box-shadow 0.18s ease,
+              border-color 0.18s ease !important;
+}
+
+/* ── Enhanced pillar card hover glow ───────────────── */
+.pillar-card--featured,
+.portal-card--featured {
+  position: relative;
+  overflow: visible;
+}
+.pillar-card--featured::before,
+.portal-card--featured::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--r-lg) + 3px);
+  background: linear-gradient(135deg, rgba(255,107,107,0.35), rgba(255,154,139,0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.pillar-card--featured:hover::before,
+.portal-card--featured:hover::before { opacity: 1; }
+
+/* ── Donate progress bar ────────────────────────────── */
+.donate-progress-fill {
+  transition: width 1.6s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+  background-size: 200% 100%;
+  animation: progressShimmer 2.8s linear infinite;
+}
+@keyframes progressShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Input focus ring ──────────────────────────────── */
+input, select, textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(255,107,107,0.12),
+              0 0 0 1px rgba(255,107,107,0.35) !important;
+  outline: none !important;
+}
+
+/* ── Navbar link underline ─────────────────────────── */
+.nav-links a {
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1.5px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after { width: 100%; }
+
+/* ── Social float stagger ─────────────────────────── */
+.social-float a {
+  animation: sfadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.social-float a:nth-child(1) { animation-delay: 1.0s; }
+.social-float a:nth-child(2) { animation-delay: 1.15s; }
+.social-float a:nth-child(3) { animation-delay: 1.3s; }
+.social-float a:nth-child(4) { animation-delay: 1.45s; }
+@keyframes sfadeIn {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Scroll indicator ──────────────────────────────── */
+.hero-scroll-indicator {
+  animation: heroScrollFade 1s ease-out 1.8s both;
+}
+@keyframes heroScrollFade {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 0.6; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Story quote card hover ────────────────────────── */
+.story-quote-card {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s ease !important;
+}
+.story-quote-card:hover {
+  transform: translateY(-8px) rotate(-0.8deg) !important;
+}
+
+/* ── Documentary teaser icon spin-hover ────────────── */
+.doc-icon {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.documentary-teaser:hover .doc-icon {
+  transform: scale(1.15) rotate(-8deg);
+}
+
+/* ── Section top shimmer line ──────────────────────── */
+.section:not(.hero)::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,107,0.18), transparent);
+  pointer-events: none;
+}
+
+/* ── Countdown unit subtle pulse ───────────────────── */
+@keyframes countPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.0); }
+  50%       { box-shadow: 0 0 12px 2px rgba(255,107,107,0.12); }
+}
+.countdown-unit {
+  animation: countPulse 3s ease-in-out infinite;
+}
+.countdown-unit:nth-child(1) { animation-delay: 0s; }
+.countdown-unit:nth-child(3) { animation-delay: 0.75s; }
+.countdown-unit:nth-child(5) { animation-delay: 1.5s; }
+.countdown-unit:nth-child(7) { animation-delay: 2.25s; }
+
+/* ── Badge dot glow ────────────────────────────────── */
+.badge-dot {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 6px 1px rgba(255,107,107,0.9); transform: scale(1); }
+  50%       { box-shadow: 0 0 14px 3px rgba(255,107,107,0.5); transform: scale(1.2); }
+}
+
+/* ── Road marker pulse ─────────────────────────────── */
+.road-vertical-marker {
+  animation: markerPulse 2.5s ease-in-out infinite;
+}
+@keyframes markerPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,107,107,0.5); }
+  50%       { box-shadow: 0 0 24px 4px rgba(255,107,107,0.25); }
+}

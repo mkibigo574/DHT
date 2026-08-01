@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import DonatePaymentForm from './DonatePaymentForm'
+import AnimateIn from './AnimateIn'
 
 const GOAL = 50_000
 
@@ -142,21 +143,26 @@ export default function Donate() {
       <div className="donate-bg-glow" />
       <div className="container">
 
-        <div className="section-header on-dark">
-          <p className="section-tag">Support the Movement</p>
-          <h2 className="section-title" style={{ color: '#fff' }}>
-            Help Us Build the<br />
-            <span className="gradient-text">Territory&apos;s Stage</span>
-          </h2>
-        </div>
+        <AnimateIn variant="up">
+          <div className="section-header on-dark">
+            <p className="section-tag">Support the Movement</p>
+            <h2 className="section-title" style={{ color: '#fff' }}>
+              Help Us Build the<br />
+              <span className="gradient-text">Territory&apos;s Stage</span>
+            </h2>
+          </div>
+        </AnimateIn>
 
+        <AnimateIn variant="fade" delay={80}>
         <p className="donate-story">
           Every year, talented young musicians from Alice Springs, Katherine, and Tennant Creek
           face a choice: stay in the NT or move south just to be heard. Darwin Has Talent changes
           that. Your donation funds regional heats, professional mentorship, and a stage that
           travels to every corner of the Territory — so NT talent gets to shine right here at home.
         </p>
+        </AnimateIn>
 
+        <AnimateIn variant="up" delay={120}>
         <div className="donate-progress-widget">
           <div className="donate-progress-track">
             <div className="donate-progress-fill" style={{ width: `${progress}%` }} />
@@ -175,10 +181,12 @@ export default function Donate() {
             </div>
           </div>
         </div>
+        </AnimateIn>
 
         <div className="donate-main-grid">
 
           {/* LEFT: form */}
+          <AnimateIn variant="left" delay={80}>
           <div className="donate-form-col glass-card">
             {!paying ? (
               <>
@@ -250,7 +258,10 @@ export default function Donate() {
             )}
           </div>
 
+          </AnimateIn>
+
           {/* RIGHT: impact + sponsorship */}
+          <AnimateIn variant="right" delay={200}>
           <div className="donate-info-col">
             <div className="donate-impact glass-card">
               <h3 className="donate-impact-heading">Where Your Money Goes</h3>
@@ -275,6 +286,7 @@ export default function Donate() {
               <p className="donate-note">ABN: 23 372 902 339</p>
             </div>
           </div>
+          </AnimateIn>
         </div>
 
         {/* Bank transfer accordion */}

@@ -1,5 +1,6 @@
 'use client'
 import { useState, FormEvent } from 'react'
+import AnimateIn from './AnimateIn'
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
@@ -27,11 +28,14 @@ export default function Contact() {
   return (
     <section className="section contact section--white" id="contact">
       <div className="container">
-        <div className="section-header">
-          <p className="section-tag">Get In Touch</p>
-          <h2 className="section-title">Let&apos;s Talk</h2>
-          <p className="section-subtitle">Have a question, a partnership idea, or just want to say g&apos;day? We&apos;d love to hear from you.</p>
-        </div>
+        <AnimateIn variant="up">
+          <div className="section-header">
+            <p className="section-tag">Get In Touch</p>
+            <h2 className="section-title">Let&apos;s Talk</h2>
+            <p className="section-subtitle">Have a question, a partnership idea, or just want to say g&apos;day? We&apos;d love to hear from you.</p>
+          </div>
+        </AnimateIn>
+        <AnimateIn variant="up" delay={100}>
         <div className="contact-grid">
           {submitted ? (
             <div style={{ padding: '40px 0', textAlign: 'center' }}>
@@ -148,6 +152,7 @@ export default function Contact() {
             </div>
           </div>
         </div>
+        </AnimateIn>
       </div>
     </section>
   )
