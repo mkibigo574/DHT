@@ -36,7 +36,8 @@ export default function PremiumAnimations() {
     const MAX_PULL = 9
 
     function onDocMove(e: MouseEvent) {
-      const btn = (e.target as Element).closest('.btn') as HTMLElement | null
+      if (!(e.target instanceof Element)) return
+      const btn = e.target.closest('.btn') as HTMLElement | null
       if (!btn) return
       const rect = btn.getBoundingClientRect()
       const cx = e.clientX - rect.left - rect.width / 2
@@ -47,7 +48,8 @@ export default function PremiumAnimations() {
     }
 
     function onDocLeave(e: MouseEvent) {
-      const btn = (e.target as Element).closest('.btn') as HTMLElement | null
+      if (!(e.target instanceof Element)) return
+      const btn = e.target.closest('.btn') as HTMLElement | null
       if (btn) btn.style.transform = ''
     }
 
@@ -59,7 +61,8 @@ export default function PremiumAnimations() {
       '.pillar-card, .portal-card, .resource-card, .rm-card, .glass-card, .contact-info-card, .donate-preset'
 
     function onCardMove(e: MouseEvent) {
-      const card = (e.target as Element).closest(TILT_SEL) as HTMLElement | null
+      if (!(e.target instanceof Element)) return
+      const card = e.target.closest(TILT_SEL) as HTMLElement | null
       if (!card) return
       const rect = card.getBoundingClientRect()
       const px = (e.clientX - rect.left) / rect.width - 0.5
@@ -70,7 +73,8 @@ export default function PremiumAnimations() {
     }
 
     function onCardLeave(e: MouseEvent) {
-      const card = (e.target as Element).closest(TILT_SEL) as HTMLElement | null
+      if (!(e.target instanceof Element)) return
+      const card = e.target.closest(TILT_SEL) as HTMLElement | null
       if (card) card.style.transform = ''
     }
 
@@ -127,7 +131,8 @@ export default function PremiumAnimations() {
 
     /* ── Ripple on button click ──────────────────────── */
     function onBtnClick(e: MouseEvent) {
-      const btn = (e.target as Element).closest('.btn') as HTMLElement | null
+      if (!(e.target instanceof Element)) return
+      const btn = e.target.closest('.btn') as HTMLElement | null
       if (!btn) return
       const circle = document.createElement('span')
       const rect = btn.getBoundingClientRect()

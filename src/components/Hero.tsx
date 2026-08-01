@@ -118,22 +118,22 @@ export default function Hero() {
             <p className="countdown-eyebrow">Auditions Open In</p>
             <div className="countdown-grid">
               <div className="countdown-unit">
-                <span className="countdown-num">{timeLeft.days}</span>
+                <span className="countdown-num" suppressHydrationWarning>{timeLeft.days}</span>
                 <span className="countdown-lbl">Days</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num">{pad(timeLeft.hours)}</span>
+                <span className="countdown-num" suppressHydrationWarning>{pad(timeLeft.hours)}</span>
                 <span className="countdown-lbl">Hours</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num">{pad(timeLeft.mins)}</span>
+                <span className="countdown-num" suppressHydrationWarning>{pad(timeLeft.mins)}</span>
                 <span className="countdown-lbl">Mins</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num">{pad(timeLeft.secs)}</span>
+                <span className="countdown-num" suppressHydrationWarning>{pad(timeLeft.secs)}</span>
                 <span className="countdown-lbl">Secs</span>
               </div>
             </div>
