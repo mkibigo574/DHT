@@ -83,10 +83,11 @@ export default function Roadmap() {
 
       mapInstanceRef.current = map
 
-      // CartoDB Dark Matter tiles — matches the dark section design
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
+      // OpenStreetMap tiles (no API key needed; CARTO basemaps now require one).
+      // Darkened via the .rm-dark-tiles CSS filter to match the section design.
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        className: 'rm-dark-tiles',
         maxZoom: 19,
       }).addTo(map)
 
