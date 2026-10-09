@@ -14,8 +14,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body>
+    <html lang="en" className={`${inter.variable} ${poppins.variable}`} suppressHydrationWarning>
+      {/* Browser extensions (e.g. Grammarly) inject attributes on <body> before hydration */}
+      <body suppressHydrationWarning>
         <PremiumAnimations />
         {children}
       </body>
