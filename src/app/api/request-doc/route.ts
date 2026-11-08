@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { queueNotification } from '@/lib/notify'
 
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -29,6 +30,17 @@ export async function POST(req: NextRequest) {
       const err = await res.json().catch(() => ({})) as { message?: string }
       return NextResponse.json({ ok: false, error: err.message ?? 'Request failed' }, { status: 500 })
     }
+
+    queueNotification({
+      subject: `📄 Document request: ${body.document} — ${body.name}`,
+      heading: 'New document request',
+      replyTo: body.email,
+      fields: [
+        ['Name', body.name],
+        ['Email', body.email],
+        ['Document', body.document],
+      ],
+    })
 
     return NextResponse.json({ ok: true })
   } catch {

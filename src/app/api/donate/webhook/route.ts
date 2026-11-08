@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { queueNotification } from '@/lib/notify'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
@@ -67,6 +68,20 @@ export async function POST(req: NextRequest) {
         `Stripe payment ${pi.id}`,
         pi.id,
       )
+
+      // Only on payment_intent.succeeded: hosted-checkout payments also emit
+      // checkout.session.completed for the same payment, which would email twice.
+      queueNotification({
+        subject: `💛 New donation: $${((pi.amount_received || pi.amount) / 100).toFixed(2)}${pi.metadata?.donor_name ? ` from ${pi.metadata.donor_name}` : ''}`,
+        heading: 'New online donation',
+        replyTo: pi.receipt_email,
+        fields: [
+          ['Donor', pi.metadata?.donor_name || 'Anonymous'],
+          ['Amount', `$${((pi.amount_received || pi.amount) / 100).toFixed(2)} ${(pi.currency || 'aud').toUpperCase()}`],
+          ['Email', pi.receipt_email],
+          ['Stripe payment', pi.id],
+        ],
+      })
     }
 
     // Legacy hosted-checkout donations (kept for backward compatibility).
