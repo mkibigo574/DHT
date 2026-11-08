@@ -46,7 +46,10 @@ type Audition = {
   region: string
   performance_type: string
   genre: string
-  video_link: string
+  video_link: string | null
+  video_path: string | null
+  video_name: string | null
+  video_size: number | null
   bio: string
   status: string
   created_at: string
@@ -229,6 +232,11 @@ export default function AdminPage() {
   const [auditions, setAuditions] = useState<Audition[]>([])
   const [donations, setDonations] = useState<Donation[]>([])
   const [contacts, setContacts] = useState<Contact[]>([])
+
+  // Audition video player
+  const [videoAudition, setVideoAudition] = useState<Audition | null>(null)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [videoError, setVideoError] = useState('')
 
   // Auditions filters
   const [auditionSearch, setAuditionSearch] = useState('')
@@ -485,6 +493,34 @@ export default function AdminPage() {
     } catch (err: unknown) {
       alert('Error updating status: ' + (err instanceof Error ? err.message : String(err)))
     }
+  }
+
+  // --- Watch an uploaded audition video (private bucket → 1-hour signed link) ---
+  async function openAuditionVideo(a: Audition) {
+    setVideoAudition(a)
+    setVideoUrl(null)
+    setVideoError('')
+    if (!a.video_path) return
+    try {
+      const encoded = a.video_path.split('/').map(encodeURIComponent).join('/')
+      const data = await sbFetch(`/storage/v1/object/sign/auditions/${encoded}`, session, {
+        method: 'POST',
+        body: JSON.stringify({ expiresIn: 3600 }),
+      }) as { signedURL?: string; signedUrl?: string }
+      const signed = data.signedURL ?? data.signedUrl
+      if (!signed) throw new Error('No link returned')
+      setVideoUrl(`${SB_URL}/storage/v1${signed}`)
+      // Opening a new application counts as starting the review.
+      if ((a.status || 'pending') === 'pending') handleAuditionStatusChange(a.id, 'reviewing')
+    } catch (err: unknown) {
+      setVideoError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  function closeAuditionVideo() {
+    setVideoAudition(null)
+    setVideoUrl(null)
+    setVideoError('')
   }
 
   // Filtered auditions
@@ -924,7 +960,7 @@ export default function AdminPage() {
                   onClick={() =>
                     exportCSV(
                       auditions as unknown as Record<string, unknown>[],
-                      ['name', 'email', 'phone', 'region', 'performance_type', 'genre', 'video_link', 'status', 'created_at'],
+                      ['name', 'email', 'phone', 'region', 'performance_type', 'genre', 'video_link', 'video_name', 'bio', 'status', 'created_at'],
                       'dht_auditions.csv',
                     )
                   }
@@ -1001,9 +1037,14 @@ export default function AdminPage() {
                         <td className="col-hide-sm">{a.performance_type || '—'}</td>
                         <td className="col-hide-sm">{a.genre || '—'}</td>
                         <td>
-                          {a.video_link ? (
+                          {a.video_path ? (
+                            <button type="button" className="btn-watch" onClick={() => openAuditionVideo(a)}>
+                              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6 4l10 6-10 6V4z" /></svg>
+                              Watch
+                            </button>
+                          ) : a.video_link ? (
                             <a href={a.video_link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>
-                              View
+                              View link
                             </a>
                           ) : '—'}
                         </td>
@@ -1234,6 +1275,58 @@ export default function AdminPage() {
           </section>
         </main>
       </div>
+
+      {/* ===== AUDITION VIDEO MODAL ===== */}
+      {videoAudition && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) closeAuditionVideo() }}
+        >
+          <div className="modal modal--video">
+            <div className="modal-header">
+              <h2>{videoAudition.name}</h2>
+              <button className="modal-close" onClick={closeAuditionVideo}>&times;</button>
+            </div>
+            {videoError ? (
+              <p className="video-modal-error">Couldn&apos;t load the video: {videoError}</p>
+            ) : videoUrl ? (
+              <video src={videoUrl} controls autoPlay playsInline preload="metadata" />
+            ) : (
+              <p className="video-modal-error">Loading video…</p>
+            )}
+            <dl className="video-modal-details">
+              {([
+                ['Email', videoAudition.email],
+                ['Phone', videoAudition.phone],
+                ['Region', videoAudition.region],
+                ['Performance type', videoAudition.performance_type],
+                ['Genre', videoAudition.genre],
+                ['About', videoAudition.bio],
+                ['File', videoAudition.video_name
+                  ? `${videoAudition.video_name}${videoAudition.video_size ? ` · ${(videoAudition.video_size / 1048576).toFixed(1)} MB` : ''}`
+                  : ''],
+              ] as [string, string | null][]).filter(([, v]) => v).map(([k, v]) => (
+                <div key={k}>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+              {videoAudition.video_link && (
+                <div>
+                  <dt>Video link</dt>
+                  <dd><a href={videoAudition.video_link} target="_blank" rel="noopener noreferrer">{videoAudition.video_link}</a></dd>
+                </div>
+              )}
+              {videoUrl && (
+                <div>
+                  <dt>Download</dt>
+                  <dd><a href={videoUrl} target="_blank" rel="noopener noreferrer">Open video in a new tab</a></dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        </div>
+      )}
 
       {/* ===== LOG DONATION MODAL ===== */}
       {donationModalOpen && (

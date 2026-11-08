@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AnimateIn from './AnimateIn'
 
 type ResourceType = 'form' | 'download' | 'sponsor'
@@ -293,6 +293,53 @@ const resources: Resource[] = [
   },
 ]
 
+// ── Audition video upload ────────────────────────────────────
+// Keep in sync with the 'auditions' bucket's file_size_limit in
+// supabase/migrations/0002_audition_video_uploads.sql (50 MB on Supabase Free).
+const MAX_VIDEO_MB = 50
+const VIDEO_BUCKET = 'auditions'
+const EXT_MIME: Record<string, string> = {
+  mp4: 'video/mp4', m4v: 'video/x-m4v', mov: 'video/quicktime', qt: 'video/quicktime',
+  webm: 'video/webm', '3gp': 'video/3gpp', avi: 'video/x-msvideo', mpeg: 'video/mpeg', mpg: 'video/mpeg',
+}
+
+function videoMime(file: File): string {
+  if (file.type.startsWith('video/')) return file.type
+  const ext = (file.name.split('.').pop() ?? '').toLowerCase()
+  return EXT_MIME[ext] ?? ''
+}
+
+function formatSize(bytes: number): string {
+  return bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.ceil(bytes / 1024)} KB`
+}
+
+/** Upload straight from the browser to Supabase Storage (bypasses the
+ *  serverless request-size limit), reporting progress from 0 to 1. */
+function uploadVideo(file: File, path: string, onProgress: (p: number) => void): Promise<void> {
+  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/${VIDEO_BUCKET}/${path}`
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.setRequestHeader('apikey', key)
+    xhr.setRequestHeader('Authorization', `Bearer ${key}`)
+    xhr.setRequestHeader('Content-Type', videoMime(file))
+    xhr.setRequestHeader('x-upsert', 'false')
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded / e.total) }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) return resolve()
+      let msg = `Video upload failed (${xhr.status}).`
+      try {
+        const j = JSON.parse(xhr.responseText) as { message?: string; error?: string }
+        if (j.message || j.error) msg = `Video upload failed: ${j.message ?? j.error}`
+      } catch { /* keep default */ }
+      reject(new Error(msg))
+    }
+    xhr.onerror = () => reject(new Error('Network error while uploading. Please check your connection and try again.'))
+    xhr.send(file)
+  })
+}
+
 // ── Premium Audition Modal ───────────────────────────────────
 function AuditionModal({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState({
@@ -301,27 +348,102 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [fileError, setFileError] = useState('')
+  const [dragOver, setDragOver] = useState(false)
+  const [progress, setProgress] = useState<number | null>(null)
+
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }, [previewUrl])
 
   function set(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
+    if (field === 'video_link' && value.trim()) {
+      setFileError('')
+      setErrorMsg('')
+      setStatus((s) => (s === 'error' ? 'idle' : s))
+    }
+  }
+
+  function pickFile(f: File | undefined) {
+    if (!f) return
+    if (!videoMime(f)) {
+      setFile(null); setPreviewUrl(null)
+      setFileError('That file doesn’t look like a video. Please choose an MP4, MOV or WEBM file.')
+      return
+    }
+    if (f.size > MAX_VIDEO_MB * 1048576) {
+      setFile(null); setPreviewUrl(null)
+      setFileError(`That video is ${formatSize(f.size)} — the limit is ${MAX_VIDEO_MB} MB. Trim it, or upload it to YouTube / Google Drive and paste the link below.`)
+      return
+    }
+    setFileError('')
+    setErrorMsg('')
+    setStatus((s) => (s === 'error' ? 'idle' : s))
+    setFile(f)
+    setPreviewUrl(URL.createObjectURL(f))
+  }
+
+  function removeFile(e: React.MouseEvent) {
+    e.preventDefault()   // the button sits inside the <label>; don't reopen the picker
+    e.stopPropagation()
+    setFile(null)
+    setPreviewUrl(null)
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setStatus('loading')
     setErrorMsg('')
+
+    const link = form.video_link.trim()
+    if (!form.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setErrorMsg('Please enter your name and a valid email address.')
+      setStatus('error')
+      return
+    }
+    if (!file && !link) {
+      setFileError('Please upload a video or paste a link to one.')
+      setErrorMsg('Please upload a video or paste a link to one.')
+      setStatus('error')
+      return
+    }
+    if (link && !/^https?:\/\/\S+\.\S+/i.test(link)) {
+      setErrorMsg('The video link should start with https://')
+      setStatus('error')
+      return
+    }
+
+    setStatus('loading')
     try {
+      let upload: { video_path: string; video_name: string; video_size: number } | null = null
+      if (file) {
+        const ext = ((file.name.split('.').pop() ?? 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp4').slice(0, 5)
+        const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'audition'
+        const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+        const path = `${new Date().getFullYear()}/${id}-${slug}.${ext}`
+        setProgress(0)
+        await uploadVideo(file, path, setProgress)
+        upload = { video_path: path, video_name: file.name, video_size: file.size }
+      }
+
       const res = await fetch('/api/audition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, video_link: link, ...(upload ?? {}) }),
       })
       const data = await res.json() as { ok: boolean; error?: string }
       if (!data.ok) throw new Error(data.error ?? 'Submission failed')
       setStatus('success')
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setErrorMsg(
+        (err instanceof Error ? err.message : 'Something went wrong. Please try again.') +
+        ' If this keeps happening, email your video link to admin@darwinhastalents.com.au.',
+      )
       setStatus('error')
+    } finally {
+      setProgress(null)
     }
   }
 
@@ -432,7 +554,46 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
                 Your Audition
               </div>
               <div className="form-group">
-                <label>Video Link <span className="req">*</span></label>
+                <label>Audition Video <span className="req">*</span></label>
+                <label
+                  className={`aud-video-drop${dragOver ? ' is-dragover' : ''}${fileError ? ' has-error' : ''}`}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => { e.preventDefault(); setDragOver(false); pickFile(e.dataTransfer.files[0]) }}
+                >
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp,video/*"
+                    onChange={(e) => { pickFile(e.target.files?.[0]); e.target.value = '' }}
+                    disabled={status === 'loading'}
+                  />
+                  {file && previewUrl ? (
+                    <span className="aud-video-file">
+                      <video src={`${previewUrl}#t=0.5`} muted playsInline preload="metadata" />
+                      <span className="aud-video-meta">
+                        <strong>{file.name}</strong>
+                        <span>{formatSize(file.size)}</span>
+                        {status !== 'loading' && (
+                          <button type="button" className="aud-video-remove" onClick={removeFile}>Remove</button>
+                        )}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="aud-video-empty">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      <strong>Tap to upload your video</strong>
+                      <span>or drag &amp; drop · MP4, MOV or WEBM · max {MAX_VIDEO_MB} MB</span>
+                    </span>
+                  )}
+                </label>
+                {fileError && <span className="aud-field-error">{fileError}</span>}
+
+                <div className="aud-video-or"><span>or paste a link</span></div>
+
                 <div className="aud-input-icon-wrap">
                   <svg className="aud-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="7" width="15" height="10" rx="2" />
@@ -440,7 +601,6 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
                   </svg>
                   <input
                     type="url"
-                    required
                     placeholder="https://youtube.com/watch?v=..."
                     value={form.video_link}
                     onChange={(e) => set('video_link', e.target.value)}
@@ -460,6 +620,13 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
                 />
               </div>
             </div>
+
+            {progress !== null && (
+              <div className="aud-upload-progress" role="status">
+                <div className="aud-upload-bar"><div style={{ width: `${Math.round(progress * 100)}%` }} /></div>
+                <span>{progress < 1 ? `Uploading video… ${Math.round(progress * 100)}%` : 'Finishing up…'}</span>
+              </div>
+            )}
 
             {status === 'error' && <p className="aud-error">{errorMsg}</p>}
 

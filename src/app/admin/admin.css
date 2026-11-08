@@ -698,3 +698,48 @@
   .admin-root .modal form { padding: 16px 18px; }
   .admin-root .modal-footer { padding-top: 14px; margin-top: 14px; }
 }
+
+/* ===== AUDITION VIDEOS ===== */
+.admin-root .btn-watch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 107, 107, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.admin-root .btn-watch:hover { background: var(--primary); color: #fff; }
+.admin-root .btn-watch svg { width: 11px; height: 11px; }
+
+.admin-root .modal--video {
+  max-width: 860px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.admin-root .modal--video video {
+  display: block;
+  width: 100%;
+  max-height: 60vh;
+  background: #000;
+}
+.admin-root .video-modal-error { padding: 40px 24px; text-align: center; color: var(--muted); }
+.admin-root .video-modal-details {
+  display: grid;
+  gap: 10px;
+  padding: 18px 24px 24px;
+  font-size: 0.88rem;
+}
+.admin-root .video-modal-details dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.admin-root .video-modal-details dd { margin: 2px 0 0; white-space: pre-wrap; word-break: break-word; }
