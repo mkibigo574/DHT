@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import AnimateIn from './AnimateIn'
 
 export default function Story() {
@@ -8,15 +9,14 @@ export default function Story() {
 
           <AnimateIn variant="left" threshold={0.06}>
             <div className="story-visual">
-              <div className="story-image-placeholder">
-                <div className="placeholder-icon">
-                  <svg viewBox="0 0 48 48" fill="none" stroke="rgba(255,107,107,0.5)" strokeWidth="1.5" strokeLinecap="round">
-                    <circle cx="24" cy="18" r="10" />
-                    <path d="M8 42c0-9 7-16 16-16s16 7 16 16" />
-                  </svg>
-                </div>
-                <span>Founder Photo</span>
-                <p>Territory-grown family initiative</p>
+              <div className="story-image">
+                <Image
+                  src="/assets/images/founder.jpg"
+                  alt="Founder of Darwin Has Talent"
+                  fill
+                  sizes="450px"
+                  className="story-image-photo"
+                />
               </div>
               <div className="story-quote-card">
                 <p>&ldquo;The NT shouldn&apos;t just be a place where talent is born — it should be a place where talent thrives.&rdquo;</p>
