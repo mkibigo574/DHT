@@ -10,7 +10,8 @@ import {
 } from '@stripe/react-stripe-js'
 
 // Load Stripe once, outside the component, so it isn't re-created on every render.
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null
 
 // Match the dark, pink-accented donate card.
 const appearance: Appearance = {

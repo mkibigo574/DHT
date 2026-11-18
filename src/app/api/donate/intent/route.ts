@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+import { getStripe, DONATIONS_OFF_MESSAGE } from '@/lib/stripe'
 
 // Creates a PaymentIntent so the donor can pay on-site with the Stripe
 // Payment Element (no redirect to Stripe's hosted checkout).
 export async function POST(req: NextRequest) {
+  const stripe = getStripe()
+  if (!stripe) return NextResponse.json({ error: DONATIONS_OFF_MESSAGE }, { status: 503 })
+
   const { amount, name, email } = await req.json() // amount in cents, e.g. 2500 = $25.00
 
   if (!amount || typeof amount !== 'number' || amount < 100) {

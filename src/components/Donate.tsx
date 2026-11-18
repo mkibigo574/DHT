@@ -135,6 +135,10 @@ export default function Donate() {
   function handleContinue() {
     setError('')
     if (amountCents < 100) { setError('Minimum donation is $1.'); return }
+    if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+      setError('Online donations aren’t available right now. Please use the bank transfer details below.')
+      return
+    }
     setPaying(true)
   }
 

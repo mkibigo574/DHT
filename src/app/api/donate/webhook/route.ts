@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 import { queueNotification } from '@/lib/notify'
+import { getStripe } from '@/lib/stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export async function POST(req: NextRequest) {
+  const stripe = getStripe()
+  if (!stripe || !webhookSecret) {
+    return NextResponse.json({ error: 'Stripe is not configured' }, { status: 503 })
+  }
+
   // Stripe requires the raw request body for signature verification.
   // In Next.js App Router, req.text() gives us the raw string — do NOT use req.json().
   const body = await req.text()
