@@ -1,19 +1,27 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 const STORAGE_KEY = 'dht-theme'
+type Theme = 'dark' | 'light'
 
-// Dark is the default. Light is opt-in and remembered on this device.
+// The theme lives on <html data-theme="light">; no attribute = dark (the default).
+// A small inline script in the root layout applies a saved choice before paint.
+function readTheme(): Theme {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+}
+
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+  return () => observer.disconnect()
+}
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
-
-  useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
-  }, [])
+  // Server render always assumes dark, matching the default.
+  const theme = useSyncExternalStore<Theme>(subscribe, readTheme, () => 'dark')
 
   function toggle() {
-    const next = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
     if (next === 'light') document.documentElement.dataset.theme = 'light'
     else delete document.documentElement.dataset.theme
     try { localStorage.setItem(STORAGE_KEY, next) } catch { /* private mode: still switches for this visit */ }
