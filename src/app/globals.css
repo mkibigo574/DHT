@@ -1242,6 +1242,21 @@ a:hover { color: var(--primary-hover); }
   gap: 10px;
   margin-bottom: 18px;
 }
+.story-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-bottom: 18px;
+  background: #fff;
+  border: 1px solid rgba(255,107,107,0.18);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+}
+.story-image-photo {
+  object-fit: cover;
+  object-position: center top;
+}
 .placeholder-icon { opacity: 0.45; }
 .placeholder-icon svg { width: 60px; height: 60px; }
 .story-image-placeholder span {
