@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -32,15 +33,6 @@ export default function Navbar() {
           <Image src="/assets/images/logo.jpeg" alt="Darwin Has Talent" width={38} height={38} className="logo-img" />
           <span className="logo-text">DARWIN<span className="logo-accent">HAS</span>TALENT</span>
         </a>
-        <button
-          className={`nav-toggle${menuOpen ? ' active' : ''}`}
-          aria-label="Toggle navigation"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
         <ul className={`nav-links${menuOpen ? ' open' : ''}`} id="navLinks">
           <li><a href="#vision" onClick={(e) => smoothScroll(e, '#vision')}>Vision</a></li>
           <li><a href="#roadmap" onClick={(e) => smoothScroll(e, '#roadmap')}>Roadmap</a></li>
@@ -69,6 +61,18 @@ export default function Navbar() {
             </a>
           </li>
         </ul>
+        <div className="nav-actions">
+          <ThemeToggle />
+          <button
+            className={`nav-toggle${menuOpen ? ' active' : ''}`}
+            aria-label="Toggle navigation"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
       </div>
     </nav>
   )

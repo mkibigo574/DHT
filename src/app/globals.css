@@ -46,6 +46,11 @@
   --font-display: var(--font-big-shoulders), 'Big Shoulders', 'Arial Narrow', sans-serif;
   --font-ui:      var(--font-archivo), 'Archivo', system-ui, sans-serif;
   --font-body:    var(--font-archivo), 'Archivo', system-ui, sans-serif;
+  --tag:          #E2894F;
+  --outline:      rgba(244,237,228,0.28);
+  --outline-hover:rgba(244,237,228,0.6);
+  --outline-hover-bg: rgba(244,237,228,0.06);
+  --scheme:       dark;
   --r-sm:  8px;
   --r-md:  12px;
   --r-lg:  18px;
@@ -2742,7 +2747,9 @@ a:hover { color: var(--primary-hover); }
   .pillars-grid { grid-template-columns: 1fr 1fr; }
   .portals-grid { grid-template-columns: 1fr; max-width: 540px; margin: 0 auto; }
   .story-layout { grid-template-columns: 1fr; }
-  .story-visual { display: none; }
+  /* Founder photo stays visible on phones and tablets: centred above the story */
+  .story-layout { gap: 36px; }
+  .story-visual { position: static; width: 100%; max-width: 340px; margin: 0 auto; }
   .story-content .section-tag,
   .story-content .section-title { text-align: center; }
   .contact-grid { grid-template-columns: 1fr; }
@@ -3617,7 +3624,7 @@ body { background: var(--night); color: var(--text); }
   letter-spacing: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #E2894F;
+  color: var(--tag);
   margin-bottom: 12px;
 }
 .section-tag::before, .section-tag::after { display: none; }
@@ -3638,14 +3645,14 @@ body { background: var(--night); color: var(--text); }
 }
 .btn-secondary, .btn-outline, .btn-ghost, .btn-ghost-dark {
   background: transparent;
-  color: var(--text-on-dark);
-  border: 1.5px solid rgba(244,237,228,0.28);
+  color: var(--secondary);
+  border: 1.5px solid var(--outline);
   box-shadow: none;
 }
 .btn-secondary:hover, .btn-outline:hover, .btn-ghost:hover, .btn-ghost-dark:hover {
-  background: rgba(244,237,228,0.06);
-  border-color: rgba(244,237,228,0.6);
-  color: #fff;
+  background: var(--outline-hover-bg);
+  border-color: var(--outline-hover);
+  color: var(--secondary);
 }
 
 /* ---------- Navbar ---------- */
@@ -3704,7 +3711,7 @@ body { background: var(--night); color: var(--text); }
 
 /* ---------- Surfaces ---------- */
 .pillar-card, .portal-card, .resource-card, .road-stop, .contact-info-card, .gform-container, .donate-form-card {
-  border-color: rgba(244,237,228,0.09);
+  border-color: var(--border);
 }
 .pillar-card:hover, .portal-card:hover, .resource-card:hover {
   border-color: rgba(255,122,26,0.35);
@@ -3715,7 +3722,7 @@ body { background: var(--night); color: var(--text); }
 .story-highlight { font-family: var(--font-display); font-size: 1.7rem !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; }
 
 /* Inputs sit recessed into their panels */
-input, select, textarea { color-scheme: dark; }
+input, select, textarea { color-scheme: var(--scheme); }
 
 /* Footer joins the night */
 .footer { background: #0A0810; }
@@ -3742,4 +3749,88 @@ input, select, textarea { color-scheme: dark; }
   .hero-badge { letter-spacing: 1.5px; }
   .hero-bg-effects::before { bottom: 40px; }
   .hero-bg-effects::after { height: 40px; }
+}
+
+
+/* ==========================================================================
+   LIGHT MODE ("Territory Day") — opt-in via the navbar switch.
+   Dark stays the default. The hero, ticker, roadmap, story, donate, footer
+   and navbar keep their night colours in both modes so the sunset hero is
+   always the first impression; the content sections turn to day.
+   ========================================================================== */
+[data-theme="light"] {
+  --night:        #F7F2F5;   /* pale plum-tinted paper */
+  --dusk:         #EFE6EC;
+  --surface:      #FFFFFF;
+  --surface-2:    #FBF6F9;
+  --inset:        #F4EEF2;
+  --primary:      #E8650F;   /* deeper orange so text stays legible on white */
+  --primary-hover:#D45808;
+  --secondary:    #1C1222;
+  --text:         #2A1F30;
+  --text-muted:   #67566A;
+  --text-light:   #8C7B88;
+  --border:       rgba(28,18,34,0.12);
+  --border-dark:  rgba(28,18,34,0.10);
+  --shadow-xs:    0 1px 2px rgba(60,20,50,0.06);
+  --shadow-sm:    0 4px 14px rgba(60,20,50,0.07);
+  --shadow-md:    0 10px 30px rgba(60,20,50,0.10);
+  --shadow-lg:    0 20px 56px rgba(60,20,50,0.14);
+  --tag:          #B4521C;
+  --outline:      rgba(28,18,34,0.25);
+  --outline-hover:rgba(28,18,34,0.55);
+  --outline-hover-bg: rgba(28,18,34,0.04);
+  --scheme:       light;
+}
+/* Night-only areas: restore the dark palette inside them */
+[data-theme="light"] :is(.navbar, .hero, .ticker-wrap, .roadmap, .story, .donate, .footer) {
+  --night:        #0E0B14;
+  --dusk:         #181020;
+  --surface:      #211729;
+  --surface-2:    #2B1F35;
+  --inset:        #130D19;
+  --primary:      #FF7A1A;
+  --primary-hover:#FF8F3D;
+  --secondary:    #F4EDE4;
+  --text:         #EDE4DA;
+  --text-muted:   #B3A5AF;
+  --text-light:   #8B7D89;
+  --border:       rgba(244,237,228,0.10);
+  --border-dark:  rgba(244,237,228,0.08);
+  --tag:          #E2894F;
+  --outline:      rgba(244,237,228,0.28);
+  --outline-hover:rgba(244,237,228,0.6);
+  --outline-hover-bg: rgba(244,237,228,0.06);
+  --scheme:       dark;
+  color: var(--text);
+}
+[data-theme="light"] .mission-block { background: var(--surface-2); }
+[data-theme="light"] .pillar-card,
+[data-theme="light"] .portal-card,
+[data-theme="light"] .resource-card { box-shadow: var(--shadow-sm); }
+
+/* ---------- Theme switch ---------- */
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(244,237,228,0.08);
+  border: 1px solid rgba(244,237,228,0.18);
+  color: #F4EDE4;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.theme-toggle:hover { background: rgba(244,237,228,0.14); border-color: rgba(244,237,228,0.35); }
+.theme-toggle svg { width: 18px; height: 18px; }
+@media (min-width: 1025px) {
+  .nav-actions { margin-left: 22px; }
+}
+@media (max-width: 480px) {
+  .nav-actions { gap: 6px; }
+  .theme-toggle { width: 36px; height: 36px; }
+  .logo-text { font-size: 1.15rem; }
 }
