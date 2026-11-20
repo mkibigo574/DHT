@@ -120,7 +120,7 @@ export default function Contact() {
             <div className="social-links">
               <h4 className="dark-text">Follow Us</h4>
               <div className="social-row">
-                <a href="https://www.instagram.com/darwinhastalent_nt" target="_blank" rel="noopener" className="social-btn">
+                <a href="https://www.instagram.com/darwinhastalents/" target="_blank" rel="noopener" className="social-btn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
