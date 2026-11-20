@@ -234,7 +234,7 @@ const resources: Resource[] = [
   {
     type: 'form',
     title: 'Audition Submission',
-    desc: 'Apply to compete in the 2027 Darwin Has Talent — submit your video and artist details.',
+    desc: 'Apply to compete in Darwin Has Talent 2027. Send us a video and a bit about you.',
     cta: 'Apply Now',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -264,7 +264,7 @@ const resources: Resource[] = [
   {
     type: 'download',
     title: 'Artist Info Pack',
-    desc: 'Everything you need to know — eligibility, regions, judging criteria, and prizes.',
+    desc: 'Everything you need to know: eligibility, regions, judging criteria and prizes.',
     cta: 'Download PDF',
     file: '/docs/artist-info-pack.pdf',
     subject: 'Artist Info Pack Request',
@@ -374,7 +374,7 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
     }
     if (f.size > MAX_VIDEO_MB * 1048576) {
       setFile(null); setPreviewUrl(null)
-      setFileError(`That video is ${formatSize(f.size)} — the limit is ${MAX_VIDEO_MB} MB. Trim it, or upload it to YouTube / Google Drive and paste the link below.`)
+      setFileError(`That video is ${formatSize(f.size)}, over the ${MAX_VIDEO_MB} MB limit. Trim it, or upload it to YouTube or Google Drive and paste the link below.`)
       return
     }
     setFileError('')
@@ -613,7 +613,7 @@ function AuditionModal({ onClose }: { onClose: () => void }) {
                 <label>About You <span className="req">*</span></label>
                 <textarea
                   required
-                  placeholder="Tell us about yourself — your musical background, influences, and why you want to compete in DHT…"
+                  placeholder="Tell us about yourself: your musical background, influences, and why you want to compete in DHT…"
                   value={form.bio}
                   onChange={(e) => set('bio', e.target.value)}
                   style={{ minHeight: 120 }}
@@ -688,7 +688,7 @@ export default function Resources() {
 
                 {r.type === 'form' ? (
                   <button className="btn btn-primary resource-btn" onClick={() => setModalOpen(true)}>
-                    {r.cta} &rarr;
+                    {r.cta}
                   </button>
                 ) : r.type === 'sponsor' ? (
                   <div className="resource-download-group">
@@ -705,7 +705,7 @@ export default function Resources() {
                       className="resource-email-link"
                       onClick={() => setSponsorOpen(true)}
                     >
-                      Partner enquiry &rarr;
+                      Partner enquiry
                     </button>
                   </div>
                 ) : (
@@ -740,7 +740,7 @@ export default function Resources() {
           <p>
             Auditions for 2027 are now open. For enquiries contact{' '}
             <a href="mailto:admin@darwinhastalents.com.au">admin@darwinhastalents.com.au</a>
-            {' '}— we respond within 48 hours.
+            {' '}and we&apos;ll reply within 48 hours.
           </p>
         </div>
       </div>

@@ -1,51 +1,18 @@
-'use client'
-import { useEffect, useRef, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
   className?: string
-  delay?: number  // ms
+  // Kept so existing call sites don't need changing; entrance animations
+  // were removed (content simply appears), so these are ignored.
+  delay?: number
   variant?: 'up' | 'left' | 'right' | 'scale' | 'fade' | 'blur-up'
   threshold?: number
-  duration?: number // ms
+  duration?: number
 }
 
-export default function AnimateIn({
-  children,
-  className = '',
-  delay = 0,
-  variant = 'up',
-  threshold = 0.08,
-  duration = 750,
-}: Props) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add('ai-visible')
-          observer.disconnect()
-        }
-      },
-      { threshold }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [threshold])
-
-  return (
-    <div
-      ref={ref}
-      className={`ai-root ai-${variant} ${className}`}
-      style={{
-        '--ai-delay': `${delay}ms`,
-        '--ai-dur': `${duration}ms`,
-      } as React.CSSProperties}
-    >
-      {children}
-    </div>
-  )
+// Plain wrapper. The .ai-root class is kept because grid layouts style it
+// (see "When .ai-root is a grid/flex child" in globals.css).
+export default function AnimateIn({ children, className = '' }: Props) {
+  return <div className={`ai-root ${className}`.trim()}>{children}</div>
 }

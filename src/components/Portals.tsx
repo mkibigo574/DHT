@@ -9,7 +9,7 @@ export default function Portals() {
           <div className="section-header">
             <p className="section-tag">Pick Your Lane</p>
             <h2 className="section-title">How Do You Want In?</h2>
-            <p className="section-subtitle">Artist, sponsor, or supporter — everyone has a role to play. The NT&apos;s biggest music moment needs all of you.</p>
+            <p className="section-subtitle">Artist, sponsor or supporter, everyone has a role to play. The NT&apos;s biggest music moment needs all of you.</p>
           </div>
         </AnimateIn>
 
@@ -23,7 +23,6 @@ export default function Portals() {
                     <polyline points="12 18 12 2 22 5" /><path d="M12 2L22 5" />
                   </svg>
                 </div>
-                <span className="portal-number">01</span>
               </div>
               <h3>For Musicians</h3>
               <p>If you&apos;ve got the talent, 2027 is your year. Register now and be the first to know when auditions drop.</p>
@@ -32,7 +31,7 @@ export default function Portals() {
                 <li>Pro mentorship &amp; industry coaching</li>
                 <li>Perform on the Territory&apos;s biggest stage</li>
               </ul>
-              <a href="#waitlist" className="btn btn-primary">Lock In My Spot &rarr;</a>
+              <a href="#waitlist" className="btn btn-primary">Lock In My Spot</a>
             </div>
           </AnimateIn>
 
@@ -46,7 +45,6 @@ export default function Portals() {
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
                 </div>
-                <span className="portal-number">02</span>
               </div>
               <h3>For Sponsors</h3>
               <p>Align your brand with the NT&apos;s most exciting cultural moment. Our 2026/27 Partnership Prospectus is ready for you.</p>
@@ -55,7 +53,7 @@ export default function Portals() {
                 <li>Community &amp; government alignment</li>
                 <li>NT-first legacy that actually matters</li>
               </ul>
-              <a href="#contact" className="btn btn-primary">Let&apos;s Talk &rarr;</a>
+              <a href="#contact" className="btn btn-primary">Let&apos;s Talk</a>
             </div>
           </AnimateIn>
 
@@ -70,7 +68,6 @@ export default function Portals() {
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 </div>
-                <span className="portal-number">03</span>
               </div>
               <h3>For Community</h3>
               <p>You don&apos;t have to perform to be part of this. Follow the journey, spread the word, and help us build something the NT has never seen.</p>
@@ -79,7 +76,7 @@ export default function Portals() {
                 <li>Talent Spotlight &amp; behind-the-scenes</li>
                 <li>Be part of NT music history</li>
               </ul>
-              <a href="#waitlist" className="btn btn-primary">Follow the Journey &rarr;</a>
+              <a href="#waitlist" className="btn btn-primary">Follow the Journey</a>
             </div>
           </AnimateIn>
         </div>
