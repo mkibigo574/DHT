@@ -74,7 +74,7 @@ export default function Contact() {
                 <textarea name="contact-message" rows={5} placeholder="Tell us what's on your mind..." required />
               </div>
               <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                {loading ? 'Sending…' : 'Send Message →'}
+                {loading ? 'Sending…' : 'Send Message'}
               </button>
             </form>
           )}

@@ -65,10 +65,7 @@ export default function Hero() {
 
       <div className="container hero-layout">
         <div className="hero-content">
-          <div className="hero-badge">
-            <span className="badge-dot" />
-            <span>Northern Territory &mdash; The Countdown Is On</span>
-          </div>
+          <p className="hero-kicker">Northern Territory, 2027</p>
           <h1 className="hero-title">
             This Is Your<br />
             <span className="hero-title-accent">Shot. Take It.</span>
@@ -76,49 +73,16 @@ export default function Hero() {
           <p className="hero-subtitle">
             Darwin Has Talent is the NT&apos;s first territory-wide music competition. Audition. Get voted. Stand on the biggest stage the Territory has ever seen.
           </p>
-          <div className="hero-prizes">
-            <div className="hero-prize-item">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="16">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>Live Grand Finale &mdash; Darwin, NT</span>
-            </div>
-            <div className="hero-prize-item">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="16">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>Industry exposure, media spotlight, go viral</span>
-            </div>
-            <div className="hero-prize-item">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="16">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>Pro mentorship, recording &amp; real career doors</span>
-            </div>
-          </div>
+          <ul className="hero-prizes">
+            <li>Live grand finale in Darwin</li>
+            <li>Industry exposure, media spotlight, go viral</li>
+            <li>Pro mentorship, recording &amp; real career doors</li>
+          </ul>
           <div className="hero-cta">
             <a href="#waitlist" className="btn btn-primary btn-lg" onClick={(e) => smoothScroll(e, '#waitlist')}>
-              <svg viewBox="0 0 20 20" fill="currentColor" width="18">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-              </svg>
-              I Want In &rarr;
+              I Want In
             </a>
             <a href="#portals" className="btn btn-ghost btn-lg" onClick={(e) => smoothScroll(e, '#portals')}>How It Works</a>
-          </div>
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <span className="hero-stat-number">4</span>
-              <span className="hero-stat-label">Regions</span>
-            </div>
-            <div className="hero-stat">
-              <span className="hero-stat-number">3,000</span>
-              <span className="hero-stat-label">Kilometres</span>
-            </div>
-            <div className="hero-stat">
-              <span className="hero-stat-number">1</span>
-              <span className="hero-stat-label">Grand Finale</span>
-            </div>
           </div>
         </div>
 
@@ -151,11 +115,6 @@ export default function Hero() {
             <p className="countdown-sub">Monday 23 November 2026, 9:00 am Darwin time</p>
           </div>
         </div>
-      </div>
-
-      <div className="hero-scroll-indicator">
-        <span>Scroll to explore</span>
-        <div className="scroll-line" />
       </div>
     </section>
   )

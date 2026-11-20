@@ -3834,3 +3834,137 @@ input, select, textarea { color-scheme: var(--scheme); }
   .theme-toggle { width: 36px; height: 36px; }
   .logo-text { font-size: 1.15rem; }
 }
+
+/* ==========================================================================
+   HUMAN PASS
+   Strip the patterns that make sites look machine-made: tracked capital
+   labels, glowing pill badges, gradient words in headlines, numbered cards
+   that aren't steps, icon tiles on every card, arrows on buttons, glow
+   shadows, floating particles and fade-up-on-scroll. What's left is type,
+   the photo, the horizon and the content.
+   ========================================================================== */
+
+/* Content is simply there; no entrance animations */
+.ai-root, .ai-root.ai-visible {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+  will-change: auto;
+}
+
+/* No section labels stacked over every heading */
+.section-tag { display: none; }
+
+/* Headlines are one colour: no gradient phrase */
+.hero-title-accent, .gradient-text {
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: inherit !important;
+  animation: none !important;
+  filter: none !important;
+}
+
+/* ---------- Hero ---------- */
+.hero-kicker {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFB27A;
+  margin-bottom: 18px;
+}
+.hero-prizes {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
+  gap: 6px;
+}
+.hero-prizes li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 0.98rem;
+  color: var(--text-muted);
+}
+.hero-prizes li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.62em;
+  width: 7px; height: 2px;
+  background: var(--ochre);
+}
+
+/* Countdown reads like a sentence, not a dashboard */
+.countdown-eyebrow {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #FFB27A;
+}
+.countdown-lbl {
+  text-transform: lowercase;
+  letter-spacing: 0;
+  font-size: 0.8rem;
+}
+.countdown-sub {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Buttons: solid, flat, ticket-like ---------- */
+.btn { border-radius: 10px; }
+.btn-primary,
+.btn-primary:hover {
+  background: var(--sunset);
+  color: #1A0F08;
+  border-color: transparent;
+  box-shadow: none;
+  filter: none;
+}
+.btn-primary:hover { background: #FF8F3D; }
+.btn-ripple { display: none; }
+
+/* ---------- Cards: no icon tiles, no numbers, no lift ---------- */
+.pillar-icon-wrap, .portal-icon-wrap, .portal-top, .portal-featured-label, .doc-icon, .wh-icon { display: none; }
+.pillar-card:hover, .portal-card:hover, .resource-card:hover,
+.pillar-card--featured:hover, .portal-card--featured:hover { transform: none; box-shadow: none; }
+.pillar-card--featured:hover::before, .portal-card--featured:hover::before { opacity: 0; }
+
+/* Resource and contact icons stay (they say what the thing is) but lose the tinted tile */
+.resource-icon, .cic-icon {
+  background: none;
+  border: none;
+  box-shadow: none;
+  width: auto; height: auto;
+  color: var(--primary);
+}
+
+/* ---------- Labels and tags: normal case, normal spacing, no pills ---------- */
+.documentary-badge, .road-stop-region, .road-stop-tag, .tc-region, .tc-tag,
+.cgf-group > label:first-child, .dark-label, .form-group label,
+.contact-info-card h4, .social-links h4, .donate-progress-lbl, .bank-label,
+.ds-eyebrow, .aud-header-text p, .aud-section-label, .footer-col h4, .aud-video-or {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.documentary-badge, .tc-tag, .road-stop-tag {
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  font-weight: 600;
+  color: var(--tag);
+}
+.final-tag { color: var(--gold); }
+.footer-col h4, .social-links h4, .contact-info-card h4 { font-size: 0.95rem; font-weight: 700; }
+.cgf-group > label:first-child, .form-group label, .dark-label { font-size: 0.9rem; font-weight: 600; }
+
+/* Quieter glows */
+.navbar .btn-primary, .nav-cta { box-shadow: none; }
+.rm-card--final { box-shadow: none; }
+@media (max-width: 1024px) {
+  .hero-prizes { width: fit-content; margin-left: auto; margin-right: auto; text-align: left; }
+}

@@ -7,7 +7,7 @@ const stops = [
   {
     city: 'Alice Springs',
     region: 'Red Centre',
-    tag: 'Opening Heat',
+    tag: 'Opening heat',
     desc: "Where the journey begins. The ancient heart of Australia holds stories and sounds the world hasn't heard yet.",
     lat: -23.698,
     lng: 133.8807,
@@ -17,7 +17,7 @@ const stops = [
   {
     city: 'Tennant Creek',
     region: 'Barkly Region',
-    tag: 'Regional Heat',
+    tag: 'Regional heat',
     desc: 'The crossroads of the Territory. Where the highway meets heritage, voices that deserve to be heard.',
     lat: -19.6479,
     lng: 133.4085,
@@ -27,8 +27,8 @@ const stops = [
   {
     city: 'Katherine',
     region: 'Big Rivers Region',
-    tag: 'Regional Heat',
-    desc: 'Gorge country sets the scene for raw, unfiltered Territory talent. Known for resilience — and now, music.',
+    tag: 'Regional heat',
+    desc: 'Gorge country sets the scene for raw, unfiltered Territory talent. Known for resilience, and now for music.',
     lat: -14.4652,
     lng: 132.2635,
     isFinal: false,
@@ -37,7 +37,7 @@ const stops = [
   {
     city: 'Darwin',
     region: 'Top End',
-    tag: 'Grand Finale ★',
+    tag: 'Grand finale',
     desc: "The journey ends where the Territory's heart beats strongest. 3,000 km of music. One electrifying night.",
     lat: -12.4634,
     lng: 130.8456,
@@ -170,7 +170,7 @@ export default function Roadmap() {
               <span className="gradient-text">One Grand Finale.</span>
             </h2>
             <p className="section-subtitle" style={{ color: 'var(--text-muted-dark)' }}>
-              From the Red Centre to the Top End — we&apos;re bringing the stage to every corner of
+              From the Red Centre to the Top End, we&apos;re bringing the stage to every corner of
               the Territory.
             </p>
           </div>

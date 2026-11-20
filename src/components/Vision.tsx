@@ -10,7 +10,7 @@ export default function Vision() {
             <p className="section-tag">The Movement</p>
             <h2 className="section-title">The NT Is Done Being Slept On.</h2>
             <p className="section-subtitle">
-              Too many NT artists had to leave home just to be heard. That ends in 2027. Darwin Has Talent is the stage they never had — built right here, for all of them.
+              Too many NT artists had to leave home just to be heard. That ends in 2027. Darwin Has Talent is the stage they never had, built right here for all of them.
             </p>
           </div>
         </AnimateIn>
@@ -24,7 +24,7 @@ export default function Vision() {
                 </svg>
               </div>
               <h3>Stay Home. Blow Up.</h3>
-              <p>No more moving interstate just to be heard. DHT gives NT artists a professional platform, real industry exposure, and a pathway to a music career — without leaving the Territory.</p>
+              <p>No more moving interstate just to be heard. DHT gives NT artists a professional platform, real industry exposure, and a pathway to a music career without leaving the Territory.</p>
             </div>
           </AnimateIn>
 
@@ -36,7 +36,7 @@ export default function Vision() {
                 </svg>
               </div>
               <h3>Every Corner. Every Voice.</h3>
-              <p>From Alice Springs to Darwin — talent doesn&apos;t care about postcode. We&apos;re taking the stage to all four regions so no one gets left behind because of where they grew up.</p>
+              <p>From Alice Springs to Darwin, talent doesn&apos;t care about postcode. We&apos;re taking the stage to all four regions so no one gets left behind because of where they grew up.</p>
             </div>
           </AnimateIn>
 
@@ -48,14 +48,13 @@ export default function Vision() {
                 </svg>
               </div>
               <h3>This Is the Real Deal.</h3>
-              <p>Professional production. Real mentors. Actual industry connections. DHT isn&apos;t a school concert — it&apos;s a launchpad built to the same standard as the national stage.</p>
+              <p>Professional production. Real mentors. Actual industry connections. DHT isn&apos;t a school concert. It&apos;s a launchpad built to the same standard as the national stage.</p>
             </div>
           </AnimateIn>
         </div>
 
         <AnimateIn variant="left" delay={80}>
           <div className="mission-block">
-            <div className="mission-quote-mark">&ldquo;</div>
             <blockquote>
               To empower the next generation of Northern Territory musicians by bridging the gap
               between education and industry. Through a territory-wide search for excellence,
@@ -63,7 +62,7 @@ export default function Vision() {
               that celebrate local voices, retain our talent, and place the NT at the heart of the
               Australian music map.
             </blockquote>
-            <p className="mission-attr">— Darwin Has Talent Mission Statement</p>
+            <p className="mission-attr">Darwin Has Talent mission statement</p>
           </div>
         </AnimateIn>
 

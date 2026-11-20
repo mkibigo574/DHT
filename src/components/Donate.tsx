@@ -162,7 +162,7 @@ export default function Donate() {
           Every year, talented young musicians from Alice Springs, Katherine, and Tennant Creek
           face a choice: stay in the NT or move south just to be heard. Darwin Has Talent changes
           that. Your donation funds regional heats, professional mentorship, and a stage that
-          travels to every corner of the Territory — so NT talent gets to shine right here at home.
+          travels to every corner of the Territory, so NT talent gets to shine right here at home.
         </p>
         </AnimateIn>
 
@@ -282,10 +282,10 @@ export default function Donate() {
             <div className="donate-sponsor glass-card">
               <p className="donate-sponsor-heading">Want to give more?</p>
               <p className="donate-sponsor-body">
-                Named donations, corporate sponsorship, or a custom program — let&apos;s talk.
+                Named donations, corporate sponsorship or a custom program? Let&apos;s talk.
               </p>
               <a href="#contact" className="btn btn-ghost donate-sponsor-btn">
-                Discuss Sponsorship →
+                Discuss Sponsorship
               </a>
               <p className="donate-note">ABN: 23 372 902 339</p>
             </div>
