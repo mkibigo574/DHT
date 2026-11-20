@@ -1,11 +1,24 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef, useSyncExternalStore } from 'react'
 
-function getTimeLeft() {
-  const target = new Date('2027-01-01T00:00:00').getTime()
-  const now = Date.now()
-  const diff = Math.max(0, target - now)
+// Audition applications close at the end of Monday 23 November 2026, Darwin time (ACST, UTC+09:30).
+// The explicit offset means every visitor counts down to the same moment, wherever they are.
+const APPLICATIONS_CLOSE = new Date('2026-11-23T23:59:59+09:30').getTime()
+
+// The homepage is pre-rendered at deploy time, so the countdown must never be
+// computed on the server (it would show the build-time numbers). Instead the
+// browser reads the clock once a second; the server renders placeholders.
+function subscribeToSeconds(onTick: () => void) {
+  const timer = setInterval(onTick, 1000)
+  return () => clearInterval(timer)
+}
+const currentSecond = () => Math.floor(Date.now() / 1000)
+const noSecondOnServer = () => null
+
+function getTimeLeft(nowMs: number) {
+  const diff = Math.max(0, APPLICATIONS_CLOSE - nowMs)
   return {
+    closed: diff === 0,
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
     hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
     mins: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
@@ -15,13 +28,9 @@ function getTimeLeft() {
 
 export default function Hero() {
   const [videoLoaded, setVideoLoaded] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft())
+  const second = useSyncExternalStore(subscribeToSeconds, currentSecond, noSecondOnServer)
+  const timeLeft = second === null ? null : getTimeLeft(second * 1000)
   const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -115,29 +124,31 @@ export default function Hero() {
 
         <div className="hero-visual">
           <div className="hero-countdown-wrap">
-            <p className="countdown-eyebrow">Auditions Open In</p>
+            <p className="countdown-eyebrow">
+              {timeLeft?.closed ? 'Audition applications are now closed' : 'Audition applications close in'}
+            </p>
             <div className="countdown-grid">
               <div className="countdown-unit">
-                <span className="countdown-num" suppressHydrationWarning>{timeLeft.days}</span>
+                <span className="countdown-num">{timeLeft ? timeLeft.days : '--'}</span>
                 <span className="countdown-lbl">Days</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num" suppressHydrationWarning>{pad(timeLeft.hours)}</span>
+                <span className="countdown-num">{timeLeft ? pad(timeLeft.hours) : '--'}</span>
                 <span className="countdown-lbl">Hours</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num" suppressHydrationWarning>{pad(timeLeft.mins)}</span>
+                <span className="countdown-num">{timeLeft ? pad(timeLeft.mins) : '--'}</span>
                 <span className="countdown-lbl">Mins</span>
               </div>
               <div className="countdown-colon">:</div>
               <div className="countdown-unit">
-                <span className="countdown-num" suppressHydrationWarning>{pad(timeLeft.secs)}</span>
+                <span className="countdown-num">{timeLeft ? pad(timeLeft.secs) : '--'}</span>
                 <span className="countdown-lbl">Secs</span>
               </div>
             </div>
-            <p className="countdown-sub">Grand Finale &mdash; Darwin, NT &mdash; 2027</p>
+            <p className="countdown-sub">Monday 23 November 2026, 11:59 pm Darwin time</p>
           </div>
         </div>
       </div>
