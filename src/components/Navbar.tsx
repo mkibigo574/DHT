@@ -31,18 +31,18 @@ export default function Navbar() {
       <div className="container nav-container">
         <a href="#" className="nav-logo" onClick={(e) => smoothScroll(e, '#hero')}>
           <Image src="/assets/images/logo.jpeg" alt="Darwin Has Talent" width={38} height={38} className="logo-img" />
-          <span className="logo-text">DARWIN<span className="logo-accent">HAS</span>TALENT</span>
+          <span className="logo-text">Darwin Has Talent</span>
         </a>
         <ul className={`nav-links${menuOpen ? ' open' : ''}`} id="navLinks">
           <li><a href="#vision" onClick={(e) => smoothScroll(e, '#vision')}>Vision</a></li>
           <li><a href="#roadmap" onClick={(e) => smoothScroll(e, '#roadmap')}>Roadmap</a></li>
-          <li><a href="#portals" onClick={(e) => smoothScroll(e, '#portals')}>Get Involved</a></li>
-          <li><a href="#story" onClick={(e) => smoothScroll(e, '#story')}>Our Story</a></li>
+          <li><a href="#portals" onClick={(e) => smoothScroll(e, '#portals')}>Get involved</a></li>
+          <li><a href="#story" onClick={(e) => smoothScroll(e, '#story')}>Our story</a></li>
           <li><a href="#contact" onClick={(e) => smoothScroll(e, '#contact')}>Contact</a></li>
           <li><a href="#donate" onClick={(e) => smoothScroll(e, '#donate')}>Donate</a></li>
           <li>
             <a href="#waitlist" className="btn btn-primary btn-nav" onClick={(e) => smoothScroll(e, '#waitlist')}>
-              Join Waitlist
+              Join the waitlist
             </a>
           </li>
           {/* Social icons — visible only in the mobile menu */}

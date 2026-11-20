@@ -8,7 +8,7 @@ export default function Footer() {
           <div className="footer-brand">
             <a href="#" className="nav-logo footer-logo">
               <Image src="/assets/images/logo.jpeg" alt="Darwin Has Talent" width={38} height={38} className="logo-img" />
-              <span className="logo-text">DARWIN<span className="logo-accent">HAS</span>TALENT</span>
+              <span className="logo-text">Darwin Has Talent</span>
             </a>
             <p>Building the Northern Territory&apos;s premier pathway for the next generation of musical talent.</p>
             <div className="footer-social">
