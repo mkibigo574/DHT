@@ -3968,3 +3968,72 @@ input, select, textarea { color-scheme: var(--scheme); }
 @media (max-width: 1024px) {
   .hero-prizes { width: fit-content; margin-left: auto; margin-right: auto; text-align: left; }
 }
+
+/* ---------- Header: plain, printed-masthead feel ---------- */
+.navbar { padding: 14px 0; }
+.navbar.scrolled {
+  background: #0E0B14;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(244,237,228,0.10);
+  padding: 10px 0;
+}
+.logo-img {
+  box-shadow: none;
+  border: none;
+  border-radius: 6px;
+  width: 34px; height: 34px;
+}
+.logo-text,
+.navbar:not(.scrolled) .logo-text,
+.navbar.scrolled .logo-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.45rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: #F4EDE4;
+}
+.logo-accent { color: inherit; }
+.nav-links a {
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: rgba(244,237,228,0.72);
+}
+.navbar.scrolled .nav-links a { color: rgba(244,237,228,0.72); }
+.nav-links a:hover, .navbar.scrolled .nav-links a:hover { color: #F4EDE4 !important; }
+.nav-links a::after { display: none; }
+.nav-links .btn-nav,
+.navbar.scrolled .nav-links .btn-nav {
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  border-radius: 6px;
+  color: #1A0F08 !important;
+}
+.theme-toggle {
+  background: none;
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 6px;
+  color: rgba(244,237,228,0.72);
+}
+.theme-toggle:hover { background: rgba(244,237,228,0.08); border: none; color: #F4EDE4; }
+/* Footer wordmark matches */
+.footer .logo-text { font-size: 1.35rem; }
+.nav-toggle {
+  background: none;
+  border: none;
+  border-radius: 6px;
+}
+.nav-toggle:hover { background: rgba(244,237,228,0.08); }
+.nav-toggle span { background: #F4EDE4 !important; }
+@media (max-width: 1024px) {
+  .nav-links {
+    background: #0E0B14;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .nav-links a { letter-spacing: 0 !important; font-weight: 600 !important; }
+  .nav-social-icon { border-radius: 8px; }
+}
