@@ -1,9 +1,9 @@
 'use client'
 import { useState, useRef, useSyncExternalStore } from 'react'
 
-// Audition applications close at the end of Monday 23 November 2026, Darwin time (ACST, UTC+09:30).
+// Applications open at 9:00 am on Monday 23 November 2026, Darwin time (ACST, UTC+09:30).
 // The explicit offset means every visitor counts down to the same moment, wherever they are.
-const APPLICATIONS_CLOSE = new Date('2026-11-23T23:59:59+09:30').getTime()
+const APPLICATIONS_OPEN = new Date('2026-11-23T09:00:00+09:30').getTime()
 
 // The homepage is pre-rendered at deploy time, so the countdown must never be
 // computed on the server (it would show the build-time numbers). Instead the
@@ -16,9 +16,9 @@ const currentSecond = () => Math.floor(Date.now() / 1000)
 const noSecondOnServer = () => null
 
 function getTimeLeft(nowMs: number) {
-  const diff = Math.max(0, APPLICATIONS_CLOSE - nowMs)
+  const diff = Math.max(0, APPLICATIONS_OPEN - nowMs)
   return {
-    closed: diff === 0,
+    open: diff === 0,
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
     hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
     mins: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
@@ -125,7 +125,7 @@ export default function Hero() {
         <div className="hero-visual">
           <div className="hero-countdown-wrap">
             <p className="countdown-eyebrow">
-              {timeLeft?.closed ? 'Audition applications are now closed' : 'Audition applications close in'}
+              {timeLeft?.open ? 'Applications are now open' : 'Applications open in'}
             </p>
             <div className="countdown-grid">
               <div className="countdown-unit">
@@ -148,7 +148,7 @@ export default function Hero() {
                 <span className="countdown-lbl">Secs</span>
               </div>
             </div>
-            <p className="countdown-sub">Monday 23 November 2026, 11:59 pm Darwin time</p>
+            <p className="countdown-sub">Monday 23 November 2026, 9:00 am Darwin time</p>
           </div>
         </div>
       </div>
