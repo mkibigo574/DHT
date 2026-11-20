@@ -31,7 +31,7 @@ export default function Navbar() {
       <div className="container nav-container">
         <a href="#" className="nav-logo" onClick={(e) => smoothScroll(e, '#hero')}>
           <Image src="/assets/images/logo.jpeg" alt="Darwin Has Talent" width={38} height={38} className="logo-img" />
-          <span className="logo-text">Darwin Has Talent</span>
+          <span className="logo-text">DARWIN<span className="logo-accent">HAS</span>TALENT</span>
         </a>
         <ul className={`nav-links${menuOpen ? ' open' : ''}`} id="navLinks">
           <li><a href="#vision" onClick={(e) => smoothScroll(e, '#vision')}>Vision</a></li>

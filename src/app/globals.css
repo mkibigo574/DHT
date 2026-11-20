@@ -3990,12 +3990,12 @@ input, select, textarea { color-scheme: var(--scheme); }
 .navbar.scrolled .logo-text {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.45rem;
-  letter-spacing: 0.01em;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
   text-transform: none;
   color: #F4EDE4;
 }
-.logo-accent { color: inherit; }
+.logo-accent { color: var(--primary); }
 .nav-links a {
   font-size: 0.93rem;
   font-weight: 500;
