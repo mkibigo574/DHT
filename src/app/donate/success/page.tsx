@@ -1,8 +1,6 @@
 import Link from 'next/link'
-import Stripe from 'stripe'
 import ConfettiLaunch from './ConfettiLaunch'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+import { getStripe } from '@/lib/stripe'
 
 export default async function DonateSuccess({
   searchParams,
@@ -11,13 +9,14 @@ export default async function DonateSuccess({
 }) {
   const { payment_intent, session_id } = await searchParams
 
+  const stripe = getStripe()
   let amountDisplay = ''
   let donorFirst = ''
 
   const fmtAmount = (cents: number) =>
     `$${(cents / 100).toLocaleString('en-AU', { minimumFractionDigits: 2 })}`
 
-  if (payment_intent) {
+  if (stripe && payment_intent) {
     // On-site donations (Payment Element) return a PaymentIntent id.
     try {
       const pi = await stripe.paymentIntents.retrieve(payment_intent)
@@ -27,7 +26,7 @@ export default async function DonateSuccess({
     } catch {
       // Non-fatal — still show the page
     }
-  } else if (session_id) {
+  } else if (stripe && session_id) {
     // Legacy hosted-checkout donations.
     try {
       const session = await stripe.checkout.sessions.retrieve(session_id)

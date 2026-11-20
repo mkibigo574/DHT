@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+import { getStripe, DONATIONS_OFF_MESSAGE } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
+  const stripe = getStripe()
+  if (!stripe) return NextResponse.json({ error: DONATIONS_OFF_MESSAGE }, { status: 503 })
+
   const { amount } = await req.json() // expects cents, e.g. 2500 = $25.00
 
   if (!amount || typeof amount !== 'number' || amount < 100) {

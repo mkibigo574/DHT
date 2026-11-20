@@ -14,7 +14,7 @@ export default function Story() {
                   src="/assets/images/founder.jpg"
                   alt="Founder of Darwin Has Talent"
                   fill
-                  sizes="450px"
+                  sizes="(max-width: 1024px) 340px, 450px"
                   className="story-image-photo"
                 />
               </div>
