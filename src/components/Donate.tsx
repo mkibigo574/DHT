@@ -316,15 +316,15 @@ export default function Donate() {
               <div className="bank-details">
                 <div className="bank-row">
                   <span className="bank-label">Account Name</span>
-                  <span className="bank-value">Darwin Has Talent</span>
+                  <span className="bank-value">Darwin Has Talents</span>
                 </div>
                 <div className="bank-row">
                   <span className="bank-label">BSB</span>
-                  <span className="bank-value bank-placeholder">[Your BSB]</span>
+                  <span className="bank-value">067-873</span>
                 </div>
                 <div className="bank-row">
                   <span className="bank-label">Account No.</span>
-                  <span className="bank-value bank-placeholder">[Your Account No.]</span>
+                  <span className="bank-value">2352 5110</span>
                 </div>
                 <div className="bank-row">
                   <span className="bank-label">Reference</span>
