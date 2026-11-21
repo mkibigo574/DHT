@@ -261,6 +261,11 @@ const resources: Resource[] = [
       </svg>
     ),
   },
+  // ── Hidden until finalised ─────────────────────────────────
+  // The Artist Info Pack and Media & Press Kit are still being prepared.
+  // To bring them back: add the PDFs to public/docs/ (artist-info-pack.pdf,
+  // press-kit.pdf), then remove the /* and */ lines around these two entries.
+  /*
   {
     type: 'download',
     title: 'Artist Info Pack',
@@ -291,6 +296,7 @@ const resources: Resource[] = [
       </svg>
     ),
   },
+  */
 ]
 
 // ── Audition video upload ────────────────────────────────────
